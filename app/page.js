@@ -223,7 +223,7 @@ const App = () => {
               Contact
             </button>
             <button
-              onClick={() => setView("admin")}
+              onClick={() => (window.location.href = "/admin-login")}
               className="hover:text-gold transition opacity-60"
             >
               Admin
@@ -337,7 +337,7 @@ const App = () => {
         <Confirmation order={order} goHome={() => setView("home")} />
       )}
 
-      {view === "contact" && <Contact/>}
+      {view === "contact" && <Contact />}
 
       {view === "admin" && (
         <Admin onCreated={fetchProducts} products={products} />
