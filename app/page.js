@@ -215,18 +215,7 @@ const App = () => {
             >
               Dentalium
             </button>
-            <button
-              onClick={() => goShop("Seashell Jewelry")}
-              className="hover:text-gold transition"
-            >
-              Jewelry
-            </button>
-            <button
-              onClick={() => goShop("Coastal Decor")}
-              className="hover:text-gold transition"
-            >
-              Decor
-            </button>
+
             <button
               onClick={() => setView("contact")}
               className="hover:text-gold transition"
