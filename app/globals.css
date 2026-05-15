@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 250 247 241;
+  --foreground: 26 42 58;
+  --primary: 11 47 73;
+  --primary-foreground: 250 247 241;
+  --gold: 184 142 75;
+  --sand: 235 222 200;
+}
+
+html { scroll-behavior: smooth; }
+
+.font-serif { font-family: var(--font-playfair), Georgia, serif; }
+.font-sans { font-family: var(--font-inter), system-ui, sans-serif; }
+
+.text-gold { color: #b88e4b; }
+.bg-gold { background-color: #b88e4b; }
+.border-gold { border-color: #b88e4b; }
+.bg-deep { background-color: #0b2f49; }
+.text-deep { color: #0b2f49; }
+.bg-sand { background-color: #ebdec8; }
+.bg-cream { background-color: #FBF7F1; }
+
+.shimmer {
+  background: linear-gradient(110deg, #ebdec8 8%, #f5ecd9 18%, #ebdec8 33%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.fade-in { animation: fadeIn 0.6s ease-out both; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hover-lift { transition: transform 0.4s cubic-bezier(.2,.8,.2,1), box-shadow 0.4s; }
+.hover-lift:hover { transform: translateY(-6px); box-shadow: 0 24px 50px -20px rgba(11,47,73,0.25); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #FBF7F1; }
+::-webkit-scrollbar-thumb { background: #b88e4b; border-radius: 8px; }
