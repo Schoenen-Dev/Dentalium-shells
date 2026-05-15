@@ -32,8 +32,12 @@ export default function AdminDashboard() {
       </div>
 
       {/* DASHBOARD CARDS */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 p-10">
-        <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer">
+      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 p-10">
+        {/* ADD PRODUCT */}
+        <div
+          onClick={() => (window.location.href = "/admin/add-product")}
+          className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer"
+        >
           <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
             Add Product
           </h2>
@@ -41,6 +45,19 @@ export default function AdminDashboard() {
           <p className="text-gray-600">Add and manage products.</p>
         </div>
 
+        {/* PRODUCT DETAILS */}
+        <div
+          onClick={() => (window.location.href = "/admin/products")}
+          className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer"
+        >
+          <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
+            Product Details
+          </h2>
+
+          <p className="text-gray-600">View all added products.</p>
+        </div>
+
+        {/* USER DETAILS */}
         <div
           onClick={() => (window.location.href = "/admin/users")}
           className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer"
@@ -52,6 +69,7 @@ export default function AdminDashboard() {
           <p className="text-gray-600">View contact form submissions.</p>
         </div>
 
+        {/* PAYMENT DETAILS */}
         <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer">
           <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
             Payment Details
@@ -60,7 +78,11 @@ export default function AdminDashboard() {
           <p className="text-gray-600">View payment history.</p>
         </div>
 
-        <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer">
+        {/* SETTINGS */}
+        <div
+          onClick={() => (window.location.href = "/admin/settings")}
+          className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer"
+        >
           <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
             Settings
           </h2>

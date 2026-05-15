@@ -15,7 +15,7 @@ export default function AdminLogin() {
 
     // TEMPORARY ADMIN LOGIN
     const adminUsername = "admin";
-    const adminPassword = "123456";
+    const adminPassword = localStorage.getItem("adminPassword") || "123456";
 
     if (username === adminUsername && password === adminPassword) {
       localStorage.setItem("adminLoggedIn", "true");
