@@ -40,7 +40,6 @@ export default function ProductDetails() {
               <th className="p-4 text-left">Price</th>
             </tr>
           </thead>
-
           <tbody>
             {Array.isArray(products) &&
               products.map((item) => (
@@ -57,9 +56,9 @@ export default function ProductDetails() {
 
                   <td className="p-4">{item.name}</td>
 
-                  <td className="p-4">{item.category}</td>
+                  <td className="p-4">${item.actual_price}</td>
 
-                  <td className="p-4">${item.price}</td>
+                  <td className="p-4">${item.selling_price}</td>
                 </tr>
               ))}
           </tbody>
