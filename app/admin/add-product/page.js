@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 export default function AddProduct() {
-  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
   const [actualPrice, setActualPrice] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [image, setImage] = useState(null);
@@ -14,7 +14,7 @@ export default function AddProduct() {
     try {
       const formData = new FormData();
 
-      formData.append("name", name);
+      formData.append("category", category);
       formData.append("actual_price", actualPrice);
       formData.append("selling_price", sellingPrice);
       formData.append("image", image);
@@ -52,8 +52,8 @@ export default function AddProduct() {
         <input
           type="text"
           placeholder="Product Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
           className="w-full border p-3 rounded"
           required
         />

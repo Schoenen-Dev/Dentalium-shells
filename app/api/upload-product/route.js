@@ -6,7 +6,7 @@ export async function POST(req) {
   try {
     const formData = await req.formData();
 
-    const name = formData.get("name");
+    const category = formData.get("category");
     const actual_price = formData.get("actual_price");
     const selling_price = formData.get("selling_price");
 
@@ -29,10 +29,10 @@ export async function POST(req) {
     await db.execute(
       `
       INSERT INTO wp_products
-      (name, actual_price, selling_price, image)
+      (category, actual_price, selling_price, image)
       VALUES (?, ?, ?, ?)
       `,
-      [name, actual_price, selling_price, imageUrl],
+      [category, actual_price, selling_price, imageUrl],
     );
 
     return Response.json({
