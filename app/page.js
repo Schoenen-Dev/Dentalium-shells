@@ -228,15 +228,50 @@ const removeItem = async (productId) => {
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* TOP BAR */}
-      <div className="bg-deep text-white text-xs py-2 px-4 text-center font-sans tracking-wider">
-        ✦ FREE SHIPPING ON ORDERS OVER $150 · HAND-CRAFTED · SUSTAINABLY SOURCED
-        ✦
+
+      {/* TOP ANNOUNCEMENT BAR */}
+
+      <div className="bg-deep text-white overflow-hidden">
+        <div className="marquee-container">
+          <div className="marquee-track">
+            <span>PREMIUM SHELLS AT THE BEST PRICES!</span>
+
+            <span className="mx-8">—</span>
+
+            <span>FREE TRANSPORT OFFER! DON’T MISS IT!</span>
+
+            <span className="mx-8">—</span>
+
+            <span>EXCLUSIVE DEALS ON PREMIUM DENTALIUM SHELLS!</span>
+
+            <span className="mx-8">—</span>
+
+            <span>SHOP NOW!</span>
+
+            <span className="mx-8">—</span>
+
+            {/* DUPLICATE FOR SMOOTH LOOP */}
+
+            <span>PREMIUM SHELLS AT THE BEST PRICES!</span>
+
+            <span className="mx-8">—</span>
+
+            <span>FREE TRANSPORT OFFER! DON’T MISS IT!</span>
+
+            <span className="mx-8">—</span>
+
+            <span>EXCLUSIVE DEALS ON PREMIUM DENTALIUM SHELLS!</span>
+
+            <span className="mx-8">—</span>
+
+            <span>SHOP NOW!</span>
+          </div>
+        </div>
       </div>
 
       {/* NAV */}
       <nav className="sticky top-0 z-40 bg-cream/90 backdrop-blur border-b border-sand">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between h-20">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between h-24">
           <button
             onClick={() => setView("home")}
             className="flex items-center gap-2 group"
