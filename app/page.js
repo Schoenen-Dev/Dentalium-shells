@@ -78,6 +78,8 @@ const App = () => {
     setSessionId(getSession());
   }, []);
 
+  
+
   useEffect(() => {
     if (!sessionId) return;
     fetchProducts();
@@ -108,27 +110,56 @@ const App = () => {
     const r = await fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sessionId,
-        productId: product.id,
-        qty,
-        action: "add",
-      }),
+     body: JSON.stringify({
+
+  sessionId,
+
+  productId: product.id,
+
+  qty,
+
+  action: "add",
+
+  price: product.price,
+
+  name: product.name,
+
+  image: product.images?.[0],
+
+}),
     });
     const d = await r.json();
     setCart(d.cart);
     setCartOpen(true);
   };
 
-  const updateQty = async (productId, qty) => {
-    const r = await fetch("/api/cart", {
+const updateQty = async (productId, qty) => {
+  if (qty < 1) return;
+
+  try {
+    const response = await fetch("/api/cart", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, productId, qty, action: "set" }),
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        productId,
+
+        qty,
+
+        action: "set",
+      }),
     });
-    const d = await r.json();
-    setCart(d.cart);
-  };
+
+    const data = await response.json();
+
+    setCart(data.cart);
+  } catch (error) {
+    console.log(error);
+  }
+};
   const removeItem = async (productId) => {
     const r = await fetch("/api/cart", {
       method: "POST",
@@ -737,47 +768,91 @@ const Home = ({
 };
 
 /* ===================== PRODUCT CARD ===================== */
-const ProductCard = ({ product, onSelect, onAdd }) => (
-  <div className="group relative">
-    <button onClick={onSelect} className="block w-full text-left">
-      <div className="relative aspect-square overflow-hidden bg-sand/30 mb-4">
-        <img
-          src={product.images?.[0]}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-        />
-        {product.badge && (
-          <Badge className="absolute top-3 left-3 bg-gold text-white border-0 rounded-none text-[10px] tracking-widest px-2 py-1">
-            {product.badge.toUpperCase()}
-          </Badge>
-        )}
-        {product.compareAt && (
-          <Badge className="absolute top-3 right-3 bg-deep text-white border-0 rounded-none text-[10px] tracking-widest px-2 py-1">
-            SALE
-          </Badge>
-        )}
-      </div>
-      <div className="text-xs text-gold tracking-widest mb-1">
-        {product.category}
-      </div>
-      <h3 className="font-serif text-lg text-deep mb-1">{product.name}</h3>
-      <div className="flex items-center gap-2">
-        <span className="text-deep">{fmt(product.price)}</span>
-        {product.compareAt && (
-          <span className="text-sm text-muted-foreground line-through">
-            {fmt(product.compareAt)}
-          </span>
-        )}
-      </div>
-    </button>
-    <Button
-      onClick={onAdd}
-      className="w-full mt-3 bg-deep hover:bg-gold text-white rounded-none h-10 text-xs tracking-widest opacity-0 group-hover:opacity-100 transition"
-    >
-      ADD TO BAG
-    </Button>
-  </div>
-);
+const ProductCard = ({ product, onSelect, onAdd }) => {
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+
+  return (
+    <div className="group relative">
+      {/* PRODUCT IMAGE */}
+
+      <button onClick={onSelect} className="block w-full text-left">
+        <div className="relative aspect-square overflow-hidden bg-sand/30 mb-4">
+          <img
+            src={product.images?.[0]}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+
+          {/* DISCOUNT BADGE */}
+
+          {product.badge && (
+            <Badge className="absolute top-3 left-3 bg-gold text-white border-0 rounded-none text-[10px] tracking-widest px-2 py-1">
+              {product.badge.toUpperCase()}
+            </Badge>
+          )}
+
+          {/* SALE BADGE */}
+
+          {product.compareAt && (
+            <Badge className="absolute top-3 right-3 bg-deep text-white border-0 rounded-none text-[10px] tracking-widest px-2 py-1">
+              SALE
+            </Badge>
+          )}
+        </div>
+
+        {/* PRODUCT NAME */}
+
+        <h3 className="font-serif text-lg text-deep mb-2">{product.name}</h3>
+
+        {/* PRICES */}
+
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-deep font-medium">{fmt(product.price)}</span>
+
+          {product.compareAt && (
+            <span className="text-sm text-muted-foreground line-through">
+              {fmt(product.compareAt)}
+            </span>
+          )}
+        </div>
+      </button>
+
+      {/* QUANTITY SELECTOR */}
+
+      
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => setQty((prev) => (prev > 1 ? prev - 1 : 1))}
+            className="w-10 h-10 border border-deep/20 flex items-center justify-center hover:bg-deep hover:text-white transition"
+          >
+            -
+          </button>
+
+          <div className="w-10 text-center font-medium">{qty}</div>
+
+          <button
+            onClick={() => setQty((prev) => prev + 1)}
+            className="w-10 h-10 border border-deep/20 flex items-center justify-center hover:bg-deep hover:text-white transition"
+          >
+            +
+          </button>
+        </div>
+     
+
+      {/* ADD TO BAG BUTTON */}
+
+      <Button
+        onClick={() => {
+          onAdd(qty);
+        }}
+        className="w-full bg-deep hover:bg-gold text-white rounded-none h-10 text-xs tracking-widest transition"
+      >
+        ADD TO BAG
+      </Button>
+    </div>
+  );
+};
 
 /* ===================== SHOP ===================== */
 const Shop = ({
@@ -837,7 +912,7 @@ const Shop = ({
             key={p.id}
             product={p}
             onSelect={() => goProduct(p)}
-            onAdd={() => addToCart(p)}
+            onAdd={(qty) => addToCart(p, qty)}
           />
         ))
       )}
@@ -848,7 +923,6 @@ const Shop = ({
 /* ===================== PRODUCT PAGE ===================== */
 const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
   const [qty, setQty] = useState(1);
-  const [imgIdx, setImgIdx] = useState(0);
   const related = products
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
