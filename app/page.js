@@ -957,7 +957,7 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
         <div>
           <div className="aspect-square bg-sand/30 mb-4 overflow-hidden">
             <img
-              src={product.images?.[imgIdx] || product.images?.[0]}
+              src={product.images?.[0]}
               alt={product.name}
               className="w-full h-full object-cover"
             />
