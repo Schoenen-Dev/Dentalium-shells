@@ -14,9 +14,9 @@ export async function POST(request) {
   try {
     const body = await request.json();
 
-    const { productId, qty, action } = body;
+    const { productId, qty, action, price, name, image } = body;
 
-    // ADD PRODUCT
+    // ADD ITEM
 
     if (action === "add") {
       const existing = cart.items.find((i) => i.id === productId);
@@ -29,11 +29,11 @@ export async function POST(request) {
 
           qty,
 
-          price: body.price || 0,
+          price,
 
-          name: body.name || "",
+          name,
 
-          image: body.image || "",
+          image,
         });
       }
     }
@@ -41,14 +41,16 @@ export async function POST(request) {
     // UPDATE QUANTITY
 
     if (action === "set") {
-      cart.items = cart.items.map((i) =>
-        i.id === productId
-          ? {
-              ...i,
-              qty,
-            }
-          : i,
-      );
+      cart.items = cart.items.map((i) => {
+        if (i.id === productId) {
+          return {
+            ...i,
+            qty,
+          };
+        }
+
+        return i;
+      });
     }
 
     // REMOVE ITEM

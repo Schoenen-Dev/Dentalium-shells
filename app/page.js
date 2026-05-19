@@ -145,30 +145,49 @@ const updateQty = async (productId, qty) => {
       },
 
       body: JSON.stringify({
+        sessionId,
         productId,
-
         qty,
-
         action: "set",
       }),
     });
 
     const data = await response.json();
 
-    setCart(data.cart);
+    setCart(data.cart || { items: [] });
   } catch (error) {
     console.log(error);
   }
 };
-  const removeItem = async (productId) => {
-    const r = await fetch("/api/cart", {
+const removeItem = async (productId) => {
+  try {
+    const response = await fetch("/api/cart", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, productId, action: "remove" }),
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        sessionId,
+
+        productId,
+
+        action: "remove",
+      }),
     });
-    const d = await r.json();
-    setCart(d.cart);
-  };
+
+    const data = await response.json();
+
+    setCart(
+      data.cart || {
+        items: [],
+      },
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -412,7 +431,7 @@ const updateQty = async (productId, qty) => {
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() =>
-                        updateQty(item.productId, Math.max(0, item.qty - 1))
+                        updateQty(item.id, Math.max(1, item.qty - 1))
                       }
                       className="w-7 h-7 border border-sand rounded flex items-center justify-center hover:bg-sand"
                     >
@@ -420,13 +439,13 @@ const updateQty = async (productId, qty) => {
                     </button>
                     <span className="text-sm w-6 text-center">{item.qty}</span>
                     <button
-                      onClick={() => updateQty(item.productId, item.qty + 1)}
+                      onClick={() => updateQty(item.id, item.qty + 1)}
                       className="w-7 h-7 border border-sand rounded flex items-center justify-center hover:bg-sand"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
                     <button
-                      onClick={() => removeItem(item.productId)}
+                      onClick={() => removeItem(item.id)}
                       className="ml-auto text-muted-foreground hover:text-red-500"
                     >
                       <Trash2 className="w-4 h-4" />
