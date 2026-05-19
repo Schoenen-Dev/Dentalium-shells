@@ -1544,7 +1544,7 @@ const Contact = () => {
 
    try {
      const res = await fetch(
-      "http://dentalium.local/wp-json/custom/v1/contact",
+       fetch("https://backend.dentaliumshells.com/wp-json/custom/v1/products"),
        {
          method: "POST",
          headers: {
