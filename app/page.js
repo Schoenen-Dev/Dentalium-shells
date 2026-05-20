@@ -1835,76 +1835,160 @@ const Contact = () => {
 /* ================================================================= FOOTER ================================================================= */
 
 const Footer = ({ goShop }) => (
-  <footer className="bg-deep text-white pt-16 pb-8 mt-0">
-    <div className="max-w-7xl mx-auto px-4 lg:px-8 grid md:grid-cols-4 gap-10">
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <Anchor className="w-6 h-6 text-gold" />
-          <div className="font-serif text-xl">
-            Dentalium <span className="italic text-gold">Shells</span>
+  <footer className="bg-deep text-white pt-14 pb-6 border-t border-white/10">
+    <div className="max-w-7xl mx-auto px-6 lg:px-10">
+      {/* TOP GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1.4fr] gap-20 pb-12">
+        {/* BRAND */}
+        <div className="flex flex-col">
+          <div className="flex items-center gap-4 mb-8">
+            <img
+              src="uploads/logo.png"
+              alt="Dentalium Shells"
+              className="h-16 w-auto brightness-[3]"
+            />
+
+            <div className="font-serif text-3xl tracking-wide text-white">
+              Dentalium <span className="italic text-gold">Shells</span>
+            </div>
+          </div>
+
+          <p className="text-[16px] text-white/60 leading-8 mb-3">
+            Tsunami colony, Kanyakumari 629702
+          </p>
+
+          <p className="text-[16px] text-white/60 mb-8">
+            Email:{" "}
+            <span className="font-semibold text-white">
+              info@dentaliumshells.com
+            </span>
+          </p>
+
+          {/* SOCIAL */}
+          <div className="flex items-center gap-4">
+            <button className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center hover:border-gold hover:text-gold transition">
+              <span className="text-lg">f</span>
+            </button>
+
+            <button className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center hover:border-gold hover:text-gold transition">
+              <span className="text-lg">◎</span>
+            </button>
           </div>
         </div>
-        <p className="text-white/60 text-sm leading-relaxed">
-          Heirloom shell jewelry, sustainably sourced and lovingly made for
-          those who treasure stories.
+
+        {/* HELP */}
+        <div className="flex flex-col">
+          <h3 className="font-serif text-gold text-xl mb-8">Help</h3>
+
+          <ul className="space-y-5 text-[16px] text-white/60">
+            <li className="hover:text-gold transition cursor-pointer">
+              Privacy Policy
+            </li>
+
+            <li className="hover:text-gold transition cursor-pointer">
+              Returns + Exchanges
+            </li>
+
+            <li className="hover:text-gold transition cursor-pointer">
+              Shipping
+            </li>
+
+            <li className="hover:text-gold transition cursor-pointer">
+              Terms & Conditions
+            </li>
+          </ul>
+        </div>
+
+        {/* SHOP */}
+        <div className="flex flex-col">
+          <h3 className="font-serif text-gold text-xl mb-8">Shop</h3>
+
+          <ul className="space-y-5 text-[16px] text-white/60">
+            <li>
+              <button
+                onClick={() => goShop("All")}
+                className="hover:text-gold transition"
+              >
+                All Products
+              </button>
+            </li>
+
+            <li>
+              <button
+                onClick={() => goShop("Dentalium Shells")}
+                className="hover:text-gold transition"
+              >
+                Dentalium Shells
+              </button>
+            </li>
+
+            <li>
+              <button
+                onClick={() => goShop("Seashell Jewelry")}
+                className="hover:text-gold transition"
+              >
+                Jewelry Collection
+              </button>
+            </li>
+
+            <li>
+              <button
+                onClick={() => goShop("Coastal Decor")}
+                className="hover:text-gold transition"
+              >
+                Coastal Decor
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        {/* USEFUL LINKS */}
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between gap-10 mb-8">
+            <h3 className="font-serif text-gold text-xl">Useful Links</h3>
+
+            <a
+              href="https://www.google.com/maps/place/Tsunami+Colony,+Kanniyakumari,+Tamil+Nadu+629702/@8.0935188,77.5406938,16z/data=!3m1!4b1!4m6!3m5!1s0x3b04ed3e6f3915ab:0x6da16d9514b905e4!8m2!3d8.0907285!4d77.5408042!16s%2Fg%2F12hngpw91?entry=tts&g_ep=EgoyMDI2MDIxOC4wIPu8ASoASAFQAw%3D%3D&skid=553a846c-03cc-492c-bb9b-85dc0733f30d"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[14px] text-white/70 border-b border-white/30 pb-1 hover:text-gold hover:border-gold transition whitespace-nowrap"
+            >
+              Get Direction ↗
+            </a>
+          </div>
+
+          <ul className="space-y-5 text-[16px] text-white/60">
+            <li className="hover:text-gold transition cursor-pointer">
+              Contact Us
+            </li>
+
+            <li className="hover:text-gold transition cursor-pointer">
+              About Us
+            </li>
+
+            <li className="hover:text-gold transition cursor-pointer">FAQ</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* BOTTOM BAR */}
+      <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <p className="text-[14px] text-white/40">
+          © Premium Dentalium Shells. All Rights Reserved.
         </p>
-      </div>
-      <div>
-        <div className="font-serif text-gold mb-4">Shop</div>
-        <ul className="space-y-2 text-sm text-white/70">
-          <li>
-            <button onClick={() => goShop("All")} className="hover:text-gold">
-              All Products
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => goShop("Dentalium Shells")}
-              className="hover:text-gold"
-            >
-              Dentalium
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => goShop("Seashell Jewelry")}
-              className="hover:text-gold"
-            >
-              Jewelry
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => goShop("Coastal Decor")}
-              className="hover:text-gold"
-            >
-              Decor
-            </button>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <div className="font-serif text-gold mb-4">Care</div>
-        <ul className="space-y-2 text-sm text-white/70">
-          <li>Shipping & Returns</li>
-          <li>Lifetime Restring</li>
-          <li>Sourcing</li>
-          <li>Contact</li>
-        </ul>
-      </div>
-      <div>
-        <div className="font-serif text-gold mb-4">Stay in Touch</div>
-        <p className="text-sm text-white/60 mb-3">@dentaliumshells</p>
-        <p className="text-sm text-white/60">hello@dentaliumshells.com</p>
-      </div>
-    </div>
-    <div className="max-w-7xl mx-auto px-4 lg:px-8 mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between text-xs text-white/40">
-      <div>© 2025 Dentalium Shells · Hand-crafted with reverence.</div>
-      <div className="flex gap-4 mt-2 md:mt-0">
-        Privacy · Terms · Accessibility
+
+        {/* PAYMENT */}
+        <div className="flex items-center gap-3">
+          <img
+            src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg"
+            alt="PayPal"
+            className="h-10 object-contain rounded"
+          />
+        </div>
       </div>
     </div>
   </footer>
 );
+
 
 export default App;
