@@ -29,8 +29,46 @@ export default function OrdersPage() {
     }
   };
 
+  const updateStatus = async (id, status) => {
+    try {
+      const response = await fetch(
+        `https://backend.dentaliumshells.com/wp-json/custom/v1/orders/${id}`,
+
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            payment_status: status,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setOrders((prev) =>
+          prev.map((order) =>
+            order.id === id
+              ? {
+                  ...order,
+                  payment_status: status,
+                }
+              : order,
+          ),
+        );
+      }
+      
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <div className="p-6">
+    <div className="p-6 min-h-screen bg-[#f8f5f0]">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold text-[#0b2c4d]">Orders</h1>
 
@@ -47,7 +85,7 @@ export default function OrdersPage() {
       ) : orders.length === 0 ? (
         <div className="text-center py-20">No orders found</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto bg-white rounded-lg shadow">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-[#0b2c4d] text-white">
@@ -67,7 +105,7 @@ export default function OrdersPage() {
 
                 <th className="p-3 text-left">Total</th>
 
-                <th className="p-3 text-left">Payment</th>
+                <th className="p-3 text-left">Status</th>
 
                 <th className="p-3 text-left">Date</th>
               </tr>
@@ -82,7 +120,10 @@ export default function OrdersPage() {
                 } catch (e) {}
 
                 return (
-                  <tr key={order.id} className="border-b align-top">
+                  <tr
+                    key={order.id}
+                    className="border-b align-top hover:bg-gray-50"
+                  >
                     <td className="p-3">{order.id}</td>
 
                     <td className="p-3 font-medium">{order.full_name}</td>
@@ -134,9 +175,21 @@ export default function OrdersPage() {
                     </td>
 
                     <td className="p-3">
-                      <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded text-sm">
-                        {order.payment_status}
-                      </span>
+                      <select
+                        value={order.payment_status}
+                        onChange={(e) => updateStatus(order.id, e.target.value)}
+                        className="border px-3 py-2 rounded bg-white"
+                      >
+                        <option value="pending">Pending</option>
+
+                        <option value="paid">Paid</option>
+
+                        <option value="shipped">Shipped</option>
+
+                        <option value="delivered">Delivered</option>
+
+                        <option value="cancelled">Cancelled</option>
+                      </select>
                     </td>
 
                     <td className="p-3 text-sm">
