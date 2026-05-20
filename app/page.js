@@ -270,22 +270,22 @@ const removeItem = async (productId) => {
 
       {/* NAV */}
       <nav className="sticky top-0 z-40 bg-cream/90 backdrop-blur border-b border-sand">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between h-28">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between h-24">
           <button
             onClick={() => setView("home")}
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-0 group"
           >
             <img
               src="uploads/logo.png"
               alt="Dentalium Shells"
-              className="h-14 w-auto object-contain"
+              className="h-12 w-auto object-contain"
             />
 
-            <div className="font-serif text-3xl tracking-wide text-deep">
+            <div className="font-serif text-2xl tracking-wide text-deep">
               Dentalium <span className="text-gold italic">Shells</span>
             </div>
           </button>
-          <div className="hidden md:flex items-center gap-10 font-sans text-[17px] font-medium tracking-wide">
+          <div className="hidden md:flex items-center gap-10 font-sans text-[16px] font-medium tracking-wide">
             <button
               onClick={() => setView("home")}
               className="hover:text-gold transition"
@@ -323,7 +323,7 @@ const removeItem = async (productId) => {
               onClick={() => setCartOpen(true)}
               className="relative flex items-center justify-center w-16 h-16"
             >
-              <ShoppingBag className="w-5 h-5 text-deep" />
+              <ShoppingBag className="w-4 h-4 text-deep" />
 
               {itemCount > 0 && (
                 <span className="absolute top-1 right-1 bg-gold text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">

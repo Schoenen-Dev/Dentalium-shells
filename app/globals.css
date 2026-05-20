@@ -76,7 +76,7 @@ html { scroll-behavior: smooth; }
 
   color: white;
 
-  animation: marqueeMove 18s linear infinite;
+  animation: marqueeMove 14s linear infinite;
 
 }
 
