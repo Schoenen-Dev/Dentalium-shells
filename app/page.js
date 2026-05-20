@@ -226,9 +226,12 @@ const removeItem = async (productId) => {
     setNewsletter("");
   };
 
+  
+
   return (
     <div className="min-h-screen bg-cream">
-      {/* TOP ANNOUNCEMENT BAR */}
+
+      {/****************************************** TOP ANNOUNCEMENT BAR ***********************************************/}
 
       <div className="bg-deep text-white overflow-hidden">
         <div className="marquee-container">
@@ -268,7 +271,8 @@ const removeItem = async (productId) => {
         </div>
       </div>
 
-      {/* NAV */}
+      {/****************************************  NAV ***************************************************************/}
+
       <nav className="sticky top-0 z-40 bg-cream/90 backdrop-blur border-b border-sand">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between h-24">
           <button
@@ -371,7 +375,8 @@ const removeItem = async (productId) => {
         )}
       </nav>
 
-      {/* MAIN VIEWS */}
+      {/******************************************************** MAIN VIEWS ************************************************/}
+
       {view === "home" && (
         <Home
           products={products}
@@ -525,7 +530,8 @@ const removeItem = async (productId) => {
   );
 };
 
-/* ===================== HOME ===================== */
+/* ================================================================= HOME ======================================================= */
+
 const Home = ({
   products,
   loading,
@@ -553,7 +559,7 @@ const Home = ({
         <div className="relative max-w-7xl mx-auto px-4 lg:px-8 w-full">
           <div className="max-w-2xl text-white">
             <Badge className="bg-gold/90 text-white border-0 rounded-none px-3 py-1 mb-6 font-sans tracking-widest text-xs">
-              NEW · SUMMER COLLECTION 2025
+              NEW · SUMMER COLLECTION 2026
             </Badge>
             <h1 className="font-serif text-5xl md:text-7xl leading-tight mb-6">
               Carved by the Sea.
@@ -584,7 +590,6 @@ const Home = ({
           </div>
         </div>
       </section>
-
       {/* TRUST STRIP */}
       <section className="bg-deep text-white py-8">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -602,7 +607,6 @@ const Home = ({
           ))}
         </div>
       </section>
-
       {/* CATEGORIES */}
       <section className="max-w-7xl mx-auto px-4 lg:px-8 py-20">
         <div className="text-center mb-14">
@@ -655,7 +659,6 @@ const Home = ({
           ))}
         </div>
       </section>
-
       {/* FEATURED PRODUCTS */}
       <section className="bg-sand/30 py-20">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
@@ -691,7 +694,6 @@ const Home = ({
           </div>
         </div>
       </section>
-
       {/* STORY */}
       <section className="max-w-7xl mx-auto px-4 lg:px-8 py-24">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -782,49 +784,103 @@ const Home = ({
       </section>
 
       {/* NEWSLETTER */}
-      <section className="bg-sand py-20">
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <Sparkles className="w-8 h-8 text-gold mx-auto mb-4" />
-          <h2 className="font-serif text-4xl text-deep mb-4">
-            Join the Tideline
-          </h2>
-          <p className="text-deep/70 mb-8 font-sans">
-            Get 10% off your first piece, plus first access to new collections
-            and ceremonies.
-          </p>
-          {newsletterOk ? (
-            <div className="text-deep flex items-center justify-center gap-2 font-serif text-lg">
-              <Check className="w-5 h-5 text-gold" /> Welcome aboard. Check your
-              inbox.
+      <section
+        className="py-14 bg-[#f8f5f0]"
+        style={{ fontFamily: "'Jost', sans-serif" }}
+      >
+        <div className="max-w-6xl mx-auto px-4 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <p className="tracking-[0.3em] text-[10px] font-light text-[#b89a5a] uppercase mb-3">
+              Why Choose Us
+            </p>
+
+            <h2 className="font-serif text-[62px] font-light text-deep mb-4 leading-none">
+              Crafted With <em>Meaning</em>
+            </h2>
+
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="w-10 h-px bg-[#b89a5a] opacity-50" />
+              <div className="w-[4px] h-[4px] bg-[#b89a5a] rotate-45 opacity-70" />
+              <div className="w-10 h-px bg-[#b89a5a] opacity-50" />
             </div>
-          ) : (
-            <form
-              onSubmit={submitNewsletter}
-              className="flex gap-2 max-w-md mx-auto"
-            >
-              <Input
-                value={newsletter}
-                onChange={(e) => setNewsletter(e.target.value)}
-                type="email"
-                placeholder="your@email.com"
-                required
-                className="rounded-none h-12 bg-cream border-deep/20 focus:border-gold"
-              />
-              <Button
-                type="submit"
-                className="bg-deep hover:bg-deep/90 text-white rounded-none h-12 px-6 tracking-widest text-xs"
+
+            <p className="max-w-lg mx-auto text-[15px] font-light text-deep/60 leading-8">
+              Premium dentalium shells sourced with care and crafted for
+              collectors, ceremonies, jewelry, and timeless art.
+            </p>
+          </div>
+
+          {/* Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              {
+                num: "01",
+                icon: "🐚",
+                title: "Premium Quality",
+                body: "Carefully selected ceremonial dentalium shells with exceptional natural quality.",
+              },
+              {
+                num: "02",
+                icon: "🌊",
+                title: "Ocean Heritage",
+                body: "Inspired by coastal traditions and timeless artisan craftsmanship.",
+              },
+              {
+                num: "03",
+                icon: "✦",
+                title: "Artisan Collection",
+                body: "Unique jewelry-grade collections crafted for collectors and ceremonies.",
+              },
+              {
+                num: "04",
+                icon: "⚓",
+                title: "Trusted Store",
+                body: "Reliable worldwide service with premium customer experience and care.",
+              },
+            ].map((card, i) => (
+              <div
+                key={i}
+                className="group relative px-6 py-8 text-center border border-[#b89a5a]/20 bg-white/25 backdrop-blur-sm transition-all duration-500 hover:bg-white/45 hover:-translate-y-1"
               >
-                SUBSCRIBE
-              </Button>
-            </form>
-          )}
+                {/* Icon */}
+                <div className="relative w-[46px] h-[46px] mx-auto mb-5">
+                  <div className="absolute inset-0 rounded-full border border-[#b89a5a]/40" />
+
+                  <div className="absolute inset-[5px] rounded-full border border-[#b89a5a]/20" />
+
+                  <div className="absolute inset-0 flex items-center justify-center text-[#b89a5a] text-base">
+                    {card.icon}
+                  </div>
+                </div>
+
+                {/* Number */}
+                <p className="text-[10px] tracking-[0.25em] text-[#b89a5a]/70 font-light mb-3">
+                  {card.num}
+                </p>
+
+                {/* Title */}
+                <h3 className="font-serif text-xl font-normal text-deep mb-3 leading-snug">
+                  {card.title}
+                </h3>
+
+                {/* Divider */}
+                <div className="w-6 h-px bg-[#b89a5a]/60 mx-auto mb-3 transition-all duration-400 group-hover:w-10" />
+
+                {/* Body */}
+                <p className="text-[13px] font-light text-deep/60 leading-relaxed">
+                  {card.body}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
   );
 };
 
-/* ===================== PRODUCT CARD ===================== */
+/* ================================================================ PRODUCT CARD =============================================== */
 const ProductCard = ({ product, onSelect, onAdd }) => {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -911,7 +967,8 @@ const ProductCard = ({ product, onSelect, onAdd }) => {
   );
 };
 
-/* ===================== SHOP ===================== */
+/* ================================================================ SHOP ======================================================== */
+
 const Shop = ({
   products,
   categories,
@@ -977,7 +1034,8 @@ const Shop = ({
   </div>
 );
 
-/* ===================== PRODUCT PAGE ===================== */
+/* ================================================================ PRODUCT PAGE ======================================================== */
+
 const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
   const [qty, setQty] = useState(1);
   const related = products
@@ -1115,7 +1173,8 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
   );
 };
 
-/* ============================================================ CHECKOUT =============================================================== */
+/* ================================================================= CHECKOUT ================================================================= */
+
 const Checkout = ({
   cart,
   subtotal,
@@ -1422,7 +1481,8 @@ const Checkout = ({
     </div>
   );
 };
-/* ===================== CONFIRMATION ===================== */
+/* ================================================================= CONFIRMATION ================================================================= */
+
 const Confirmation = ({ order, goHome }) => (
   <div className="fade-in max-w-2xl mx-auto px-4 py-20 text-center">
     <div className="w-16 h-16 bg-gold rounded-full flex items-center justify-center mx-auto mb-6">
@@ -1466,7 +1526,8 @@ const Confirmation = ({ order, goHome }) => (
   </div>
 );
 
-/* ===================== ADMIN ===================== */
+/* ================================================================= ADMIN ================================================================= */
+
 const Admin = ({ onCreated, products }) => {
   const [form, setForm] = useState({
     name: "",
@@ -1643,7 +1704,9 @@ const Admin = ({ onCreated, products }) => {
     </div>
   );
 };
-/* ===================== CONTACT ===================== */
+
+/* ================================================================= CONTACT ================================================================= */
+
 const Contact = () => {
 
   const [formData, setFormData] = useState({
@@ -1769,7 +1832,8 @@ const Contact = () => {
   );
 };
 
-/* ===================== FOOTER ===================== */
+/* ================================================================= FOOTER ================================================================= */
+
 const Footer = ({ goShop }) => (
   <footer className="bg-deep text-white pt-16 pb-8 mt-0">
     <div className="max-w-7xl mx-auto px-4 lg:px-8 grid md:grid-cols-4 gap-10">
