@@ -30,7 +30,7 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       const response = await fetch(
-        "http://dentalium.local/wp-json/custom/v1/products",
+        "https://backend.dentaliumshells.com/wp-json/custom/v1/products",
       );
 
       const data = await response.json();
