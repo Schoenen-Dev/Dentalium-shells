@@ -65,9 +65,13 @@ export default function ProductsPage() {
     if (!confirmDelete) return;
 
     try {
-      await fetch(`/api/delete-product?id=${id}`, {
-        method: "DELETE",
-      });
+      await fetch(
+        `https://backend.dentaliumshells.com/wp-json/custom/v1/products/${id}`,
+
+        {
+          method: "DELETE",
+        },
+      );
 
       setProducts(products.filter((item) => item.id !== id));
     } catch (error) {
@@ -91,23 +95,27 @@ export default function ProductsPage() {
 
   const handleUpdate = async () => {
     try {
-      const response = await fetch("/api/edit-product", {
-        method: "PUT",
+      const response = await fetch(
+        `https://backend.dentaliumshells.com/wp-json/custom/v1/products/${editData.id}`,
 
-        headers: {
-          "Content-Type": "application/json",
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            id: editData.id,
+
+            category: editCategory,
+
+            actual_price: editActualPrice,
+
+            selling_price: editSellingPrice,
+          }),
         },
-
-        body: JSON.stringify({
-          id: editData.id,
-
-          category: editCategory,
-
-          actual_price: editActualPrice,
-
-          selling_price: editSellingPrice,
-        }),
-      });
+      );
 
       const data = await response.json();
 
