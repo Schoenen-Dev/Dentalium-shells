@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Facebook, Instagram } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -230,7 +231,6 @@ const removeItem = async (productId) => {
 
   return (
     <div className="min-h-screen bg-cream">
-
       {/****************************************** TOP ANNOUNCEMENT BAR ***********************************************/}
 
       <div className="bg-deep text-white overflow-hidden">
@@ -313,7 +313,7 @@ const removeItem = async (productId) => {
               onClick={() => setView("contact")}
               className="hover:text-gold transition"
             >
-              Contact
+              Contact Us
             </button>
             <button
               onClick={() => (window.location.href = "/admin-login")}
@@ -436,7 +436,7 @@ const removeItem = async (productId) => {
         <Admin onCreated={fetchProducts} products={products} />
       )}
 
-      <Footer goShop={goShop} />
+      <Footer goShop={goShop}/>
 
       {/* CART DRAWER */}
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
@@ -1705,10 +1705,9 @@ const Admin = ({ onCreated, products }) => {
   );
 };
 
-/* ================================================================= CONTACT ================================================================= */
+/* ================================================================= CONTACT US ================================================================= */
 
 const Contact = () => {
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -1723,112 +1722,162 @@ const Contact = () => {
     });
   };
 
- const handleSubmit = async (e) => {
-   e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-   try {
-     const res = await fetch(
-       fetch("https://backend.dentaliumshells.com/wp-json/custom/v1/products"),
-       {
-         method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify(formData),
-       },
-     );
+    try {
+      const res = await fetch(
+        "https://backend.dentaliumshells.com/wp-json/custom/v1/contact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        },
+      );
 
-     const data = await res.json();
+      const data = await res.json();
 
-     console.log(data);
+      console.log(data);
 
-     alert("Message sent successfully!");
+      alert("Message sent successfully!");
 
-     setFormData({
-       name: "",
-       email: "",
-       subject: "",
-       message: "",
-     });
-   } catch (error) {
-     console.log(error);
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      console.log(error);
 
-     alert("Something went wrong");
-   }
- }; 
+      alert("Something went wrong");
+    }
+  };
 
   return (
-    <div className="fade-in max-w-4xl mx-auto px-4 py-20">
+    <section id="contact" className="bg-[#f8f5f0] py-24">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8">
+        {/* HEADER */}
+        <div className="text-center mb-20">
+          <p className="text-gold tracking-[0.35em] uppercase text-[11px] mb-4">
+            Contact Us
+          </p>
 
-      <div className="text-center mb-12">
+          <h1 className="font-serif text-[68px] leading-none text-deep mb-6">
+            Get in Touch
+          </h1>
 
-        <div className="text-gold text-sm tracking-widest mb-3">
-          CONTACT
+          <p className="text-deep/60 text-lg">
+            Questions about shells, jewelry, or custom orders?
+          </p>
         </div>
 
-        <h1 className="font-serif text-5xl text-deep mb-4">
-          Get in Touch
-        </h1>
+        {/* CONTENT */}
+        <div className="grid lg:grid-cols-2 gap-24 items-center">
+          {/* LEFT SIDE */}
+          <div className="max-w-[480px]">
+            <h2 className="font-serif text-[54px] leading-tight text-deep mb-14">
+              Visit Our Store
+            </h2>
 
-        <p className="text-deep/70 font-sans">
-          Questions about shells, jewelry, or custom orders?
-        </p>
+            <div className="space-y-12">
+              {/* ADDRESS */}
+              <div>
+                <h3 className="text-[28px] font-semibold text-deep mb-5">
+                  Address
+                </h3>
 
+                <p className="text-deep/65 text-[18px] leading-10">
+                  Tsunami colony
+                  <br />
+                  Kanyakumari Dist. Tamil Nadu, India 629702
+                </p>
+              </div>
+
+              {/* EMAIL */}
+              <div>
+                <h3 className="text-[28px] font-semibold text-deep mb-5">
+                  Email
+                </h3>
+
+                <p className="text-deep text-[18px]">
+                  info@dentaliumshells.com
+                </p>
+              </div>
+
+              {/* OPEN TIME */}
+              <div>
+                <h3 className="text-[28px] font-semibold text-deep mb-5">
+                  Open Time
+                </h3>
+
+                <p className="text-deep/65 text-[18px] leading-10">
+                  Our store is opened for shopping
+                  <br />
+                  every day from 9am to 6pm
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT SIDE */}
+          <div className="bg-white border border-[#d8c9a8]/40 shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-12 lg:p-14">
+            <h2 className="font-serif text-[46px] text-deep mb-10">
+              Send Message
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                value={formData.name}
+                onChange={handleChange}
+                className="rounded-none h-14 border-deep/15 text-[15px] px-5"
+                required
+              />
+
+              <Input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                value={formData.email}
+                onChange={handleChange}
+                className="rounded-none h-14 border-deep/15 text-[15px] px-5"
+                required
+              />
+
+              <Input
+                type="text"
+                name="subject"
+                placeholder="Subject"
+                value={formData.subject}
+                onChange={handleChange}
+                className="rounded-none h-14 border-deep/15 text-[15px] px-5"
+              />
+
+              <Textarea
+                name="message"
+                placeholder="Your Message"
+                value={formData.message}
+                onChange={handleChange}
+                className="rounded-none border-deep/15 min-h-[180px] text-[15px] p-5 resize-none"
+                required
+              />
+
+              <Button
+                type="submit"
+                className="w-full bg-deep hover:bg-gold text-white rounded-none h-14 tracking-[0.25em] text-[13px] font-medium transition"
+              >
+                SEND MESSAGE
+              </Button>
+            </form>
+          </div>
+        </div>
       </div>
-
-      <form
-        onSubmit={handleSubmit}
-        className="grid md:grid-cols-2 gap-6"
-      >
-
-        <Input
-          type="text"
-          name="name"
-          placeholder="Your Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="rounded-none h-12 border-deep/20"
-          required
-        />
-
-        <Input
-          type="email"
-          name="email"
-          placeholder="Your Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="rounded-none h-12 border-deep/20"
-          required
-        />
-
-        <Input
-          type="text"
-          name="subject"
-          placeholder="Subject"
-          value={formData.subject}
-          onChange={handleChange}
-          className="rounded-none h-12 border-deep/20 md:col-span-2"
-        />
-
-        <Textarea
-          name="message"
-          placeholder="Your Message"
-          value={formData.message}
-          onChange={handleChange}
-          className="rounded-none border-deep/20 md:col-span-2 min-h-40"
-          required
-        />
-
-        <Button
-          type="submit"
-          className="bg-deep hover:bg-gold text-white rounded-none h-12 tracking-widest text-sm md:col-span-2"
-        >
-          SEND MESSAGE
-        </Button>
-
-      </form>
-
-    </div>
+    </section>
   );
 };
 
@@ -1866,13 +1915,23 @@ const Footer = ({ goShop }) => (
 
           {/* SOCIAL */}
           <div className="flex items-center gap-4">
-            <button className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center hover:border-gold hover:text-gold transition">
-              <span className="text-lg">f</span>
-            </button>
+            <a
+              href="https://www.facebook.com/people/Premium-Dentalium-shells/61573979925825/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center hover:border-gold hover:text-gold transition"
+            >
+              <Facebook className="w-5 h-5" />
+            </a>
 
-            <button className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center hover:border-gold hover:text-gold transition">
-              <span className="text-lg">◎</span>
-            </button>
+            <a
+              href="https://www.instagram.com/premium_dentalium_shells"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center hover:border-gold hover:text-gold transition"
+            >
+              <Instagram className="w-5 h-5" />
+            </a>
           </div>
         </div>
 
@@ -1958,12 +2017,30 @@ const Footer = ({ goShop }) => (
           </div>
 
           <ul className="space-y-5 text-[16px] text-white/60">
-            <li className="hover:text-gold transition cursor-pointer">
-              Contact Us
+            <li>
+              <button
+                onClick={() => {
+                  const section = document.getElementById("contact");
+
+                  if (section) {
+                    section.scrollIntoView({
+                      behavior: "smooth",
+                    });
+                  }
+                }}
+                className="hover:text-gold transition"
+              >
+                Contact Us
+              </button>
             </li>
 
-            <li className="hover:text-gold transition cursor-pointer">
-              About Us
+            <li>
+              <button
+                onClick={() => setCurrentPage("about")}
+                className="hover:text-gold transition"
+              >
+                About Us
+              </button>
             </li>
 
             <li className="hover:text-gold transition cursor-pointer">FAQ</li>
