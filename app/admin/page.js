@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -56,6 +57,16 @@ export default function AdminDashboard() {
 
           <p className="text-gray-600">View all added products.</p>
         </div>
+
+
+        {/* Orders Details */}
+        <Link href="/admin/orders">
+          <div className="bg-white shadow-md rounded-lg p-10 hover:shadow-xl transition cursor-pointer">
+            <h2 className="text-2xl font-bold text-[#0b2c4d] mb-4">Orders</h2>
+
+            <p className="text-gray-600">View customer orders.</p>
+          </div>
+        </Link>
 
         {/* USER DETAILS */}
         <div

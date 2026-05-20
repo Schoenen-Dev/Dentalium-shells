@@ -1112,8 +1112,16 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
   );
 };
 
-/* ===================== CHECKOUT ===================== */
-const Checkout = ({ cart, subtotal, shipping, total, sessionId, onPlaced }) => {
+/* ============================================================ CHECKOUT =============================================================== */
+const Checkout = ({
+  cart,
+  subtotal,
+  shipping,
+  total,
+  sessionId,
+  onPlaced,
+  setCart,
+}) => {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -1125,33 +1133,75 @@ const Checkout = ({ cart, subtotal, shipping, total, sessionId, onPlaced }) => {
     exp: "12/27",
     cvc: "123",
   });
+
   const [placing, setPlacing] = useState(false);
+
   const submit = async (e) => {
     e.preventDefault();
+
     setPlacing(true);
-    const r = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customer: {
-          name: form.name,
-          email: form.email,
-          address: form.address,
-          city: form.city,
-          zip: form.zip,
-          country: form.country,
+
+    try {
+      const response = await fetch(
+        "https://backend.dentaliumshells.com/wp-json/custom/v1/orders",
+
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            full_name: form.name,
+
+            email: form.email,
+
+            address: form.address,
+
+            city: form.city,
+
+            zip: form.zip,
+
+            country: form.country,
+
+            items: cart.items,
+
+            subtotal,
+
+            shipping,
+
+            total,
+
+            sessionId,
+          }),
         },
-        items: cart.items,
-        subtotal,
-        shipping,
-        total,
-        sessionId,
-      }),
-    });
-    const d = await r.json();
-    setPlacing(false);
-    if (d.order) onPlaced(d.order);
+      );
+
+      const data = await response.json();
+
+      setPlacing(false);
+
+      if (data.success) {
+        alert("Order placed successfully!");
+
+        setCart({ items: [] });
+
+        onPlaced(data);
+      } else {
+        alert("Order failed");
+
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
+
+      setPlacing(false);
+
+      alert("Something went wrong");
+    }
   };
+
   if ((cart.items || []).length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-32 text-center">
@@ -1159,66 +1209,106 @@ const Checkout = ({ cart, subtotal, shipping, total, sessionId, onPlaced }) => {
       </div>
     );
   }
+
   return (
     <div className="fade-in max-w-6xl mx-auto px-4 lg:px-8 py-12">
       <h1 className="font-serif text-4xl text-deep mb-10 text-center">
         Checkout
       </h1>
+
       <form onSubmit={submit} className="grid md:grid-cols-2 gap-12">
         <div className="space-y-6">
           <div>
             <h2 className="font-serif text-xl text-deep mb-4">Contact</h2>
+
             <Input
               required
               placeholder="Full name"
               className="rounded-none mb-3 bg-cream border-deep/20"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  name: e.target.value,
+                })
+              }
             />
+
             <Input
               required
               type="email"
               placeholder="Email"
               className="rounded-none bg-cream border-deep/20"
               value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  email: e.target.value,
+                })
+              }
             />
           </div>
+
           <div>
             <h2 className="font-serif text-xl text-deep mb-4">
               Shipping Address
             </h2>
+
             <Input
               required
               placeholder="Street address"
               className="rounded-none mb-3 bg-cream border-deep/20"
               value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  address: e.target.value,
+                })
+              }
             />
+
             <div className="grid grid-cols-2 gap-3 mb-3">
               <Input
                 required
                 placeholder="City"
                 className="rounded-none bg-cream border-deep/20"
                 value={form.city}
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    city: e.target.value,
+                  })
+                }
               />
+
               <Input
                 required
                 placeholder="ZIP"
                 className="rounded-none bg-cream border-deep/20"
                 value={form.zip}
-                onChange={(e) => setForm({ ...form, zip: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    zip: e.target.value,
+                  })
+                }
               />
             </div>
+
             <Input
               required
               placeholder="Country"
               className="rounded-none bg-cream border-deep/20"
               value={form.country}
-              onChange={(e) => setForm({ ...form, country: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  country: e.target.value,
+                })
+              }
             />
           </div>
+
           <div>
             <h2 className="font-serif text-xl text-deep mb-4">
               Payment{" "}
@@ -1226,34 +1316,54 @@ const Checkout = ({ cart, subtotal, shipping, total, sessionId, onPlaced }) => {
                 (Demo · use test card)
               </span>
             </h2>
+
             <Input
               required
               placeholder="Card number"
               className="rounded-none mb-3 bg-cream border-deep/20"
               value={form.card}
-              onChange={(e) => setForm({ ...form, card: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  card: e.target.value,
+                })
+              }
             />
+
             <div className="grid grid-cols-2 gap-3">
               <Input
                 required
                 placeholder="MM/YY"
                 className="rounded-none bg-cream border-deep/20"
                 value={form.exp}
-                onChange={(e) => setForm({ ...form, exp: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    exp: e.target.value,
+                  })
+                }
               />
+
               <Input
                 required
                 placeholder="CVC"
                 className="rounded-none bg-cream border-deep/20"
                 value={form.cvc}
-                onChange={(e) => setForm({ ...form, cvc: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    cvc: e.target.value,
+                  })
+                }
               />
             </div>
           </div>
         </div>
+
         <div>
           <div className="bg-sand/30 p-6 sticky top-28">
             <h2 className="font-serif text-xl text-deep mb-4">Order Summary</h2>
+
             <div className="space-y-3 mb-4">
               {cart.items.map((i) => (
                 <div key={i.productId} className="flex gap-3 text-sm">
@@ -1262,28 +1372,36 @@ const Checkout = ({ cart, subtotal, shipping, total, sessionId, onPlaced }) => {
                     alt=""
                     className="w-16 h-16 object-cover"
                   />
+
                   <div className="flex-1">
                     <div className="font-serif text-deep">{i.name}</div>
+
                     <div className="text-deep/60 text-xs">Qty {i.qty}</div>
                   </div>
+
                   <div className="text-deep">{fmt(i.price * i.qty)}</div>
                 </div>
               ))}
             </div>
+
             <div className="border-t border-deep/10 pt-3 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span>{fmt(subtotal)}</span>
               </div>
+
               <div className="flex justify-between">
                 <span>Shipping</span>
                 <span>{shipping === 0 ? "Free" : fmt(shipping)}</span>
               </div>
+
               <div className="flex justify-between font-serif text-xl pt-2 border-t border-deep/10">
                 <span>Total</span>
+
                 <span className="text-gold">{fmt(total)}</span>
               </div>
             </div>
+
             <Button
               type="submit"
               disabled={placing}
@@ -1291,6 +1409,7 @@ const Checkout = ({ cart, subtotal, shipping, total, sessionId, onPlaced }) => {
             >
               {placing ? "PLACING ORDER..." : `PLACE ORDER · ${fmt(total)}`}
             </Button>
+
             <div className="text-xs text-deep/50 mt-3 text-center">
               Secure checkout · Demo mode
             </div>
@@ -1300,7 +1419,6 @@ const Checkout = ({ cart, subtotal, shipping, total, sessionId, onPlaced }) => {
     </div>
   );
 };
-
 /* ===================== CONFIRMATION ===================== */
 const Confirmation = ({ order, goHome }) => (
   <div className="fade-in max-w-2xl mx-auto px-4 py-20 text-center">
