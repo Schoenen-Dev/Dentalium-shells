@@ -297,6 +297,12 @@ const removeItem = async (productId) => {
               Home
             </button>
             <button
+              onClick={() => setView("about")}
+              className="hover:text-gold transition"
+            >
+              About Us
+            </button>
+            <button
               onClick={() => goShop("All")}
               className="hover:text-gold transition"
             >
@@ -390,6 +396,9 @@ const removeItem = async (productId) => {
           newsletterOk={newsletterOk}
         />
       )}
+
+      {view === "about" && <About />}
+
       {view === "shop" && (
         <Shop
           products={filtered}
@@ -436,7 +445,7 @@ const removeItem = async (productId) => {
         <Admin onCreated={fetchProducts} products={products} />
       )}
 
-      <Footer goShop={goShop}/>
+      <Footer goShop={goShop} setView={setView} />
 
       {/* CART DRAWER */}
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
@@ -877,6 +886,292 @@ const Home = ({
         </div>
       </section>
     </div>
+  );
+};
+
+/* ================================================================= ABOUT ======================================================= */
+
+const About = () => {
+  return (
+    <section id="about" className="bg-[#f8f5f0] text-deep overflow-hidden">
+      {/* HERO */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-24 text-center">
+        <p className="text-gold tracking-[0.35em] uppercase text-[11px] mb-4">
+          Premium Dentalium Shells
+        </p>
+
+        <h1 className="font-serif text-[64px] leading-none mb-8">
+          Specialists in Exporting
+          <br />
+          Natural Sea Shells
+        </h1>
+
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-14 h-px bg-gold/40"></div>
+          <div className="w-2 h-2 rounded-full bg-gold"></div>
+          <div className="w-14 h-px bg-gold/40"></div>
+        </div>
+
+        <p className="max-w-5xl mx-auto text-[17px] leading-9 text-deep/70">
+          We are pleased to introduce ourselves as a leading supplier of Premium
+          Dentalium Shells, based in Kanyakumari, India. Since 2025, we have
+          specialized in sourcing and supplying high-quality, natural sea shells
+          with a strong focus on authentic and superior-grade Dentalium shells.
+        </p>
+      </div>
+
+      {/* PRODUCT CATEGORY SECTION */}
+      <div className="max-w-6xl mx-auto px-4 lg:px-8 mb-28">
+        <div className="bg-[#efe7dc] rounded-[30px] px-8 lg:px-16 py-20">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-[52px] leading-tight mb-6">
+              Premium Dentalium Shells
+              <br />
+              from India
+            </h2>
+
+            <p className="max-w-3xl mx-auto text-deep/70 text-[16px] leading-8">
+              We specialize in supplying high-quality natural sea shells sourced
+              carefully from coastal regions of South India.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
+            {[
+              "Premium White Dentalium Shells",
+              "Smooth & Polished Dentalium Shells",
+              "Natural Raw Dentalium Shells",
+              "Mother of Pearl Shells",
+              "Decorative & Craft Sea Shells",
+              "Bulk Supply for Jewelry & Interior Decor",
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl py-6 px-5 text-center shadow-sm border border-gold/10 hover:-translate-y-1 transition duration-500"
+              >
+                <p className="font-medium text-[15px]">{item}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-deep rounded-2xl px-8 py-7 text-center text-white text-[16px] leading-8 shadow-xl">
+            We look forward to becoming your trusted partner for
+            <span className="text-gold font-semibold">
+              {" "}
+              Premium Dentalium Shells from Kanyakumari.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ESTABLISHED SECTION */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 mb-32">
+        <div className="text-center mb-20">
+          <h2 className="font-serif text-[72px] leading-none">
+            Established - 2025
+          </h2>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* LEFT */}
+          <div>
+            <h3 className="font-serif text-[46px] leading-tight mb-8">
+              Premium Dentalium Shells
+              <br />
+              from Kanyakumari
+            </h3>
+
+            <div className="space-y-6 text-deep/70 text-[17px] leading-9">
+              <p>
+                Located in Tsunami Colony, Kanyakumari District, Tamil Nadu,
+                India — the southern tip of the Indian Peninsula — we have been
+                dedicated since 2025 to sourcing and supplying high-quality
+                natural Dentalium and sea shells.
+              </p>
+
+              <p>
+                We carefully select, clean, sort, and pack shells to meet both
+                national and international standards.
+              </p>
+
+              <p>
+                From initial inquiry to final dispatch, we maintain
+                professionalism and transparency, ensuring reliable service and
+                long-term partnerships.
+              </p>
+            </div>
+          </div>
+
+          {/* RIGHT */}
+          <div className="bg-deep rounded-[30px] p-12 text-white shadow-2xl">
+            <h3 className="font-serif text-[38px] mb-10">Why Choose Us</h3>
+
+            <div className="space-y-6">
+              {[
+                "Premium White Dentalium Shells",
+                "Export-Quality Processing",
+                "Consistent Grading Standards",
+                "Secure Packaging & Timely Delivery",
+                "Transparent Communication",
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <div className="w-2 h-2 rounded-full bg-gold"></div>
+
+                  <p className="text-[17px] text-white/85">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* STATS */}
+        <div className="grid md:grid-cols-3 gap-6 mt-16">
+          {[
+            {
+              title: "2025",
+              desc: "Established & Serving Globally",
+            },
+            {
+              title: "100%",
+              desc: "Natural & Authentic Shells",
+            },
+            {
+              title: "Export",
+              desc: "International Quality Standards",
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-[24px] py-12 px-8 text-center border border-gold/10"
+            >
+              <h3 className="font-serif text-[42px] mb-4">{item.title}</h3>
+
+              <p className="text-deep/60 text-[15px]">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* VISION */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 mb-32">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
+          <div>
+            <p className="text-gold tracking-[0.35em] uppercase text-[11px] mb-4">
+              Our Vision
+            </p>
+
+            <h2 className="font-serif text-[60px] mb-8">Our Vision</h2>
+
+            <div className="space-y-6 text-deep/70 text-[17px] leading-9">
+              <p>
+                Since our establishment in 2025, our journey in the natural sea
+                shell industry has made us extremely particular about quality,
+                authenticity, and pricing.
+              </p>
+
+              <p>
+                We aim to redefine the natural sea shell supply market by
+                adopting modern processing, sustainable sourcing practices, and
+                efficient global distribution methods.
+              </p>
+
+              <p>
+                Our vision is to become the number one global supplier of
+                Premium Dentalium Shells, trusted for quality and reliability
+                worldwide.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <img
+              src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop"
+              alt="Sea Shells"
+              className="rounded-[30px] h-[700px] w-full object-cover shadow-xl"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* QUALITY */}
+      <div className="max-w-6xl mx-auto px-4 lg:px-8 mb-32">
+        <div className="bg-[#efe7dc] rounded-[34px] px-8 lg:px-20 py-20">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-[56px] mb-8">
+              Quality is our priority
+            </h2>
+
+            <p className="max-w-4xl mx-auto text-deep/70 text-[18px] leading-9">
+              At Premium Dentalium Shells, quality is our priority — ensuring
+              every shell meets the highest standards of authenticity, natural
+              purity, smooth finish, uniform size selection, and premium
+              grading.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-10">
+            {[
+              {
+                title: "High-Quality Shells",
+                desc: "We source and supply premium, high-quality natural shells to ensure long-lasting durability and perfect finish.",
+              },
+              {
+                title: "Various Sizes in inches",
+                desc: "We offer a wide range of Dentalium shell sizes to meet diverse requirements and applications.",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-[28px] p-10 text-center border border-gold/10"
+              >
+                <div className="w-20 h-20 rounded-full border border-gold/20 flex items-center justify-center mx-auto mb-8">
+                  <div className="w-3 h-3 rounded-full bg-gold"></div>
+                </div>
+
+                <h3 className="font-serif text-[36px] mb-6">{item.title}</h3>
+
+                <p className="text-deep/65 leading-8 text-[16px]">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* RECOGNIZED */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 pb-32 text-center">
+        <h2 className="font-serif text-[58px] mb-10">
+          We are Highly Recognized
+        </h2>
+
+        <p className="max-w-5xl mx-auto text-deep/70 text-[17px] leading-9 mb-20">
+          Premium Dentalium Shells, Natural Sea Shells, White Dentalium Shells,
+          Smooth & Polished Dentalium Shells, Mother of Pearl Shells, Craft &
+          Decorative Shells — available in various sizes up to 2.2 inches.
+        </p>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            "/uploads/about1.webp",
+            "/uploads/about2.webp",
+            "/uploads/about3.webp",
+            "/uploads/about4.webp",
+          ].map((img, i) => (
+            <div
+              key={i}
+              className="overflow-hidden rounded-[26px] bg-white shadow-md"
+            >
+              <img
+                src={img}
+                alt="Dentalium Shell"
+                className="h-[320px] w-full object-cover hover:scale-105 transition duration-700"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };
 
@@ -1883,7 +2178,7 @@ const Contact = () => {
 
 /* ================================================================= FOOTER ================================================================= */
 
-const Footer = ({ goShop }) => (
+const Footer = ({ goShop, setView }) => (
   <footer className="bg-deep text-white pt-14 pb-6 border-t border-white/10">
     <div className="max-w-7xl mx-auto px-6 lg:px-10">
       {/* TOP GRID */}
@@ -2020,13 +2315,17 @@ const Footer = ({ goShop }) => (
             <li>
               <button
                 onClick={() => {
-                  const section = document.getElementById("contact");
+                  setView("contact");
 
-                  if (section) {
-                    section.scrollIntoView({
-                      behavior: "smooth",
-                    });
-                  }
+                  setTimeout(() => {
+                    const section = document.getElementById("contact");
+
+                    if (section) {
+                      section.scrollIntoView({
+                        behavior: "smooth",
+                      });
+                    }
+                  }, 100);
                 }}
                 className="hover:text-gold transition"
               >
@@ -2036,7 +2335,19 @@ const Footer = ({ goShop }) => (
 
             <li>
               <button
-                onClick={() => setCurrentPage("about")}
+                onClick={() => {
+                  setView("about");
+
+                  setTimeout(() => {
+                    const section = document.getElementById("about");
+
+                    if (section) {
+                      section.scrollIntoView({
+                        behavior: "smooth",
+                      });
+                    }
+                  }, 100);
+                }}
                 className="hover:text-gold transition"
               >
                 About Us
