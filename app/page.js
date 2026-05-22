@@ -1470,6 +1470,8 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
 
 /* ================================================================= CHECKOUT ================================================================= */
 
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+
 const Checkout = ({
   cart,
   subtotal,
@@ -1486,22 +1488,15 @@ const Checkout = ({
     city: "",
     zip: "",
     country: "USA",
-    card: "4242 4242 4242 4242",
-    exp: "12/27",
-    cvc: "123",
   });
 
   const [placing, setPlacing] = useState(false);
 
-  const submit = async (e) => {
-    e.preventDefault();
-
-    setPlacing(true);
-
+  // SAVE ORDER TO DATABASE
+  const saveOrder = async (paymentDetails = null) => {
     try {
       const response = await fetch(
         "https://backend.dentaliumshells.com/wp-json/custom/v1/orders",
-
         {
           method: "POST",
 
@@ -1531,29 +1526,31 @@ const Checkout = ({
             total,
 
             sessionId,
+
+            payment_status: "Paid",
+
+            transaction_id: paymentDetails?.id || "",
+
+            payer_email: paymentDetails?.payer?.email_address || "",
           }),
         },
       );
 
       const data = await response.json();
 
-      setPlacing(false);
-
       if (data.success) {
-        alert("Order placed successfully!");
+        alert("Payment successful & order placed!");
 
         setCart({ items: [] });
 
         onPlaced(data);
       } else {
-        alert("Order failed");
+        alert("Order save failed");
 
         console.log(data);
       }
     } catch (error) {
       console.log(error);
-
-      setPlacing(false);
 
       alert("Something went wrong");
     }
@@ -1573,8 +1570,10 @@ const Checkout = ({
         Checkout
       </h1>
 
-      <form onSubmit={submit} className="grid md:grid-cols-2 gap-12">
+      <div className="grid md:grid-cols-2 gap-12">
+        {/* LEFT SIDE */}
         <div className="space-y-6">
+          {/* CONTACT */}
           <div>
             <h2 className="font-serif text-xl text-deep mb-4">Contact</h2>
 
@@ -1606,6 +1605,7 @@ const Checkout = ({
             />
           </div>
 
+          {/* SHIPPING */}
           <div>
             <h2 className="font-serif text-xl text-deep mb-4">
               Shipping Address
@@ -1665,58 +1665,9 @@ const Checkout = ({
               }
             />
           </div>
-
-          <div>
-            <h2 className="font-serif text-xl text-deep mb-4">
-              Payment{" "}
-              <span className="text-xs text-deep/50 font-sans">
-                (Demo · use test card)
-              </span>
-            </h2>
-
-            <Input
-              required
-              placeholder="Card number"
-              className="rounded-none mb-3 bg-cream border-deep/20"
-              value={form.card}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  card: e.target.value,
-                })
-              }
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                required
-                placeholder="MM/YY"
-                className="rounded-none bg-cream border-deep/20"
-                value={form.exp}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    exp: e.target.value,
-                  })
-                }
-              />
-
-              <Input
-                required
-                placeholder="CVC"
-                className="rounded-none bg-cream border-deep/20"
-                value={form.cvc}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    cvc: e.target.value,
-                  })
-                }
-              />
-            </div>
-          </div>
         </div>
 
+        {/* RIGHT SIDE */}
         <div>
           <div className="bg-sand/30 p-6 sticky top-28">
             <h2 className="font-serif text-xl text-deep mb-4">Order Summary</h2>
@@ -1749,6 +1700,7 @@ const Checkout = ({
 
               <div className="flex justify-between">
                 <span>Shipping</span>
+
                 <span>{shipping === 0 ? "Free" : fmt(shipping)}</span>
               </div>
 
@@ -1759,20 +1711,59 @@ const Checkout = ({
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={placing}
-              className="w-full mt-6 bg-deep hover:bg-deep/90 text-white rounded-none h-12 tracking-widest text-sm"
-            >
-              {placing ? "PLACING ORDER..." : `PLACE ORDER · ${fmt(total)}`}
-            </Button>
+            {/* PAYPAL */}
+            <div className="mt-6">
+              <PayPalScriptProvider
+                options={{
+                  clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+                  currency: "USD",
+                }}
+              >
+                <PayPalButtons
+                  style={{
+                    layout: "vertical",
+                    color: "gold",
+                    shape: "rect",
+                    label: "paypal",
+                  }}
+                  disabled={placing}
+                  createOrder={(data, actions) => {
+                    return actions.order.create({
+                      purchase_units: [
+                        {
+                          amount: {
+                            value: total.toFixed(2),
+                          },
+                        },
+                      ],
+                    });
+                  }}
+                  onApprove={async (data, actions) => {
+                    setPlacing(true);
+
+                    const details = await actions.order.capture();
+
+                    console.log(details);
+
+                    await saveOrder(details);
+
+                    setPlacing(false);
+                  }}
+                  onError={(err) => {
+                    console.log(err);
+
+                    alert("Payment failed");
+                  }}
+                />
+              </PayPalScriptProvider>
+            </div>
 
             <div className="text-xs text-deep/50 mt-3 text-center">
-              Secure checkout · Demo mode
+              Secure checkout with PayPal
             </div>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
