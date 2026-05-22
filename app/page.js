@@ -90,34 +90,16 @@ const App = () => {
 
   const fetchProducts = async () => {
     setLoading(true);
-    const r = await fetch(
-      "https://backend.dentaliumshells.com/wp-json/custom/v1/products",
-    );
+    const r = await fetch("/api/products");
     const d = await r.json();
-    console.log("PRODUCTS API:", d);
-
-    setProducts(Array.isArray(d) ? d : d.products || []);
+    setProducts(d.products || []);
     setLoading(false);
   };
-
- const fetchCategories = async () => {
-   try {
-     const r = await fetch(
-       "https://backend.dentaliumshells.com/wp-json/custom/v1/categories",
-     );
-
-     const d = await r.json();
-
-     console.log("CATEGORIES:", d);
-
-     setCategories(d.categories || ["All"]);
-   } catch (error) {
-     console.log(error);
-
-     setCategories(["All"]);
-   }
- };
- 
+  const fetchCategories = async () => {
+    const r = await fetch("/api/categories");
+    const d = await r.json();
+    setCategories(d.categories || ["All"]);
+  };
   const fetchCart = async () => {
     if (!sessionId) return;
     const r = await fetch(`/api/cart/${sessionId}`);
