@@ -2227,19 +2227,19 @@ const Footer = ({ goShop, setView }) => (
 
           <ul className="space-y-5 text-[16px] text-white/60">
             <li className="hover:text-gold transition cursor-pointer">
-              Privacy Policy
-            </li>
+               <a href="/privacy-policy-2">Privacy Policy</a>
+             </li>
 
             <li className="hover:text-gold transition cursor-pointer">
-              Returns + Exchanges
-            </li>
+              <a href="/returns-exchanges">Returns + Exchanges</a>
+             </li>
 
             <li className="hover:text-gold transition cursor-pointer">
-              Shipping
-            </li>
+               <a href="/shipping">Shipping</a>
+             </li>
 
-            <li className="hover:text-gold transition cursor-pointer">
-              Terms & Conditions
+           <li className="hover:text-gold transition cursor-pointer">
+             <a href="/terms">Terms & Conditions</a>
             </li>
           </ul>
         </div>
@@ -2345,7 +2345,9 @@ const Footer = ({ goShop, setView }) => (
               </button>
             </li>
 
-            <li className="hover:text-gold transition cursor-pointer">FAQ</li>
+            <li className="hover:text-gold transition cursor-pointer">
+  <a href="/faq-v1">FAQ</a>
+</li>
           </ul>
         </div>
       </div>
