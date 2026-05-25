@@ -603,7 +603,7 @@ const Home = ({
       <section className="bg-deep text-white py-8">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { i: Truck, t: "Worldwide Shipping", s: "Free over $150" },
+            { i: Truck, t: "Worldwide Shipping", s: "" },
             { i: Shield, t: "Lifetime Restring", s: "On all dentalium" },
             { i: Sparkles, t: "Hand-Finished", s: "Each piece unique" },
             { i: Anchor, t: "Wild Harvested", s: "Ethically sourced" },
@@ -1441,7 +1441,7 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
             </Button>
           </div>
           <div className="flex items-center gap-2 text-sm text-deep/60 mt-4">
-            <Truck className="w-4 h-4" /> shipping on orders over $150 ·
+            <Truck className="w-4 h-4" /> 
             Ships in 2-3 days
           </div>
         </div>
