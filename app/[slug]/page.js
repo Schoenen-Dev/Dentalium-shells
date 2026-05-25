@@ -290,7 +290,7 @@ export default function DynamicPage({ params }) {
   ],
 },
 
-   "shipping-policy": {
+   "shipping": {
   title: "Shipping Policy",
 
   sections: [
