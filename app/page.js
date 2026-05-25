@@ -1276,28 +1276,41 @@ const Shop = ({
   addToCart,
 }) => (
   <div className="fade-in max-w-7xl mx-auto px-4 lg:px-8 py-12">
+
+    {/* Heading */}
     <div className="text-center mb-10">
       <div className="text-gold text-sm tracking-widest mb-3">
         THE COLLECTION
       </div>
+
       <h1 className="font-serif text-4xl md:text-5xl text-deep">
         {activeCat === "All" ? "Shop All" : activeCat}
       </h1>
     </div>
+
+    {/* Filters */}
     <div className="flex flex-col md:flex-row gap-4 mb-10 items-center justify-between">
+
       <div className="flex flex-wrap gap-2">
         {categories.map((c) => (
           <button
             key={c}
             onClick={() => setActiveCat(c)}
-            className={`px-4 py-2 text-xs tracking-widest border transition ${activeCat === c ? "bg-deep text-white border-deep" : "border-deep/20 text-deep hover:border-deep"}`}
+            className={`px-4 py-2 text-xs tracking-widest border transition ${
+              activeCat === c
+                ? "bg-deep text-white border-deep"
+                : "border-deep/20 text-deep hover:border-deep"
+            }`}
           >
             {c.toUpperCase()}
           </button>
         ))}
       </div>
+
+      {/* Search */}
       <div className="relative w-full md:w-64">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -1306,29 +1319,122 @@ const Shop = ({
         />
       </div>
     </div>
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-      {loading ? (
-        Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="aspect-square shimmer rounded" />
-        ))
-      ) : products.length === 0 ? (
-        <div className="col-span-full text-center py-20 font-serif text-xl text-deep/50">
-          No pieces match your search.
-        </div>
-      ) : (
-        products.map((p) => (
-          <ProductCard
-            key={p.id}
-            product={p}
-            onSelect={() => goProduct(p)}
-            onAdd={(qty) => addToCart(p, qty)}
-          />
-        ))
-      )}
+
+
+    {/* Products Grid */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      {/* Product 1 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells.webp"
+          alt="Shell 1"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 2 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells2.webp"
+          alt="Shell 2"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 3 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells3.webp"
+          alt="Shell 3"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 4 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells4.webp"
+          alt="Shell 4"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 5 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells5.webp"
+          alt="Shell 5"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 6 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells6.webp"
+          alt="Shells 6"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 7 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells7.webp"
+          alt="Shells 7"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 8 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells8.webp"
+          alt="Shells 8"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 9 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells9.webp"
+          alt="Shells 9"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 10 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells10.webp"
+          alt="Shell 10"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 11 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells11.webp"
+          alt="Shell 11"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
+      {/* Product 12 */}
+      <div className="bg-white rounded-xl overflow-hidden shadow">
+        <img
+          src="/uploads/shells12.webp"
+          alt="Shell 12"
+          className="w-full h-[250px] object-cover"
+        />
+      </div>
+
     </div>
   </div>
 );
-
 /* ================================================================ PRODUCT PAGE ======================================================== */
 
 const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
