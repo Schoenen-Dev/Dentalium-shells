@@ -1441,7 +1441,7 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
             </Button>
           </div>
           <div className="flex items-center gap-2 text-sm text-deep/60 mt-4">
-            <Truck className="w-4 h-4" /> Free shipping on orders over $150 ·
+            <Truck className="w-4 h-4" /> shipping on orders over $150 ·
             Ships in 2-3 days
           </div>
         </div>
