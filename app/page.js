@@ -1470,10 +1470,7 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
 
 /* ================================================================= CHECKOUT ================================================================= */
 
-import {
-  PayPalScriptProvider,
-  PayPalButtons,
-} from "@paypal/react-paypal-js";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const Checkout = ({
   cart,
@@ -1485,78 +1482,17 @@ const Checkout = ({
   setCart,
 }) => {
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
-    phone: "",
-
-    address1: "",
-    address2: "",
-
+    address: "",
     city: "",
-    state: "",
     zip: "",
     country: "USA",
-
-    notes: "",
   });
 
   const [placing, setPlacing] = useState(false);
 
-  // HANDLE INPUT CHANGE
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // VALIDATE FORM
-  const validateForm = () => {
-    if (!form.firstName.trim()) {
-      alert("First name is required");
-      return false;
-    }
-
-    if (!form.lastName.trim()) {
-      alert("Last name is required");
-      return false;
-    }
-
-    if (!form.email.includes("@")) {
-      alert("Please enter valid email");
-      return false;
-    }
-
-    if (!form.phone.trim()) {
-      alert("Phone number is required");
-      return false;
-    }
-
-    if (!form.address1.trim()) {
-      alert("Address is required");
-      return false;
-    }
-
-    if (!form.city.trim()) {
-      alert("City is required");
-      return false;
-    }
-
-    if (!form.state.trim()) {
-      alert("State is required");
-      return false;
-    }
-
-    if (!form.zip.trim()) {
-      alert("ZIP code is required");
-      return false;
-    }
-
-    return true;
-  };
-
-  // SAVE ORDER
+  // SAVE ORDER TO DATABASE
   const saveOrder = async (paymentDetails = null) => {
     try {
       const response = await fetch(
@@ -1569,32 +1505,35 @@ const Checkout = ({
           },
 
           body: JSON.stringify({
-            first_name: form.firstName,
-            last_name: form.lastName,
-            email: form.email,
-            phone: form.phone,
+            full_name: form.name,
 
-            address1: form.address1,
-            address2: form.address2,
+            email: form.email,
+
+            address: form.address,
 
             city: form.city,
-            state: form.state,
+
             zip: form.zip,
+
             country: form.country,
 
-            notes: form.notes,
-
             items: cart.items,
+
             subtotal,
+
             shipping,
+
             total,
+
             sessionId,
 
+            payment_status: "Paid",
+
             transaction_id: paymentDetails?.id || "",
-            payer_email:
-              paymentDetails?.payer?.email_address || "",
+
+            payer_email: paymentDetails?.payer?.email_address || "",
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -1620,198 +1559,140 @@ const Checkout = ({
   if ((cart.items || []).length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-32 text-center">
-        <h1 className="font-serif text-3xl text-deep">
-          Your bag is empty.
-        </h1>
+        <h1 className="font-serif text-3xl text-deep">Your bag is empty.</h1>
       </div>
     );
   }
 
   return (
-    <div className="fade-in max-w-7xl mx-auto px-4 lg:px-8 py-12">
-      <h1 className="font-serif text-4xl lg:text-5xl text-deep mb-12 text-center">
+    <div className="fade-in max-w-6xl mx-auto px-4 lg:px-8 py-12">
+      <h1 className="font-serif text-4xl text-deep mb-10 text-center">
         Checkout
       </h1>
 
-      <div className="grid lg:grid-cols-2 gap-10">
+      <div className="grid md:grid-cols-2 gap-12">
         {/* LEFT SIDE */}
-        <div className="space-y-8">
-          {/* CONTACT INFORMATION */}
-          <div className="bg-white rounded-2xl shadow-sm border border-deep/10 p-6 lg:p-8">
-            <h2 className="font-serif text-2xl text-deep mb-6">
-              Contact Information
-            </h2>
+        <div className="space-y-6">
+          {/* CONTACT */}
+          <div>
+            <h2 className="font-serif text-xl text-deep mb-4">Contact</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                name="firstName"
-                placeholder="First Name"
-                value={form.firstName}
-                onChange={handleChange}
-                autoComplete="given-name"
-                className="h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-              />
+            <Input
+              required
+              placeholder="Full name"
+              className="rounded-none mb-3 bg-cream border-deep/20"
+              value={form.name}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  name: e.target.value,
+                })
+              }
+            />
 
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Last Name"
-                value={form.lastName}
-                onChange={handleChange}
-                autoComplete="family-name"
-                className="h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-              />
-            </div>
-
-            <div className="space-y-4">
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={form.email}
-                onChange={handleChange}
-                autoComplete="email"
-                className="w-full h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-              />
-
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Phone Number"
-                value={form.phone}
-                onChange={handleChange}
-                autoComplete="tel"
-                className="w-full h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-              />
-            </div>
+            <Input
+              required
+              type="email"
+              placeholder="Email"
+              className="rounded-none bg-cream border-deep/20"
+              value={form.email}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  email: e.target.value,
+                })
+              }
+            />
           </div>
 
-          {/* SHIPPING ADDRESS */}
-          <div className="bg-white rounded-2xl shadow-sm border border-deep/10 p-6 lg:p-8">
-            <h2 className="font-serif text-2xl text-deep mb-6">
+          {/* SHIPPING */}
+          <div>
+            <h2 className="font-serif text-xl text-deep mb-4">
               Shipping Address
             </h2>
 
-            <div className="space-y-4">
-              <input
-                type="text"
-                name="country"
-                placeholder="Country"
-                value={form.country}
-                onChange={handleChange}
-                autoComplete="country-name"
-                className="w-full h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+            <Input
+              required
+              placeholder="Street address"
+              className="rounded-none mb-3 bg-cream border-deep/20"
+              value={form.address}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  address: e.target.value,
+                })
+              }
+            />
+
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <Input
+                required
+                placeholder="City"
+                className="rounded-none bg-cream border-deep/20"
+                value={form.city}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    city: e.target.value,
+                  })
+                }
               />
 
-              <input
-                type="text"
-                name="address1"
-                placeholder="Street Address"
-                value={form.address1}
-                onChange={handleChange}
-                autoComplete="address-line1"
-                className="w-full h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-              />
-
-              <input
-                type="text"
-                name="address2"
-                placeholder="Apartment, Suite, etc. (Optional)"
-                value={form.address2}
-                onChange={handleChange}
-                autoComplete="address-line2"
-                className="w-full h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="City"
-                  value={form.city}
-                  onChange={handleChange}
-                  autoComplete="address-level2"
-                  className="h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                />
-
-                <input
-                  type="text"
-                  name="state"
-                  placeholder="State"
-                  value={form.state}
-                  onChange={handleChange}
-                  autoComplete="address-level1"
-                  className="h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                />
-              </div>
-
-              <input
-                type="text"
-                name="zip"
-                placeholder="ZIP / Postal Code"
+              <Input
+                required
+                placeholder="ZIP"
+                className="rounded-none bg-cream border-deep/20"
                 value={form.zip}
-                onChange={handleChange}
-                autoComplete="postal-code"
-                className="w-full h-12 px-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    zip: e.target.value,
+                  })
+                }
               />
             </div>
-          </div>
 
-          {/* ORDER NOTES */}
-          <div className="bg-white rounded-2xl shadow-sm border border-deep/10 p-6 lg:p-8">
-            <h2 className="font-serif text-2xl text-deep mb-4">
-              Order Notes
-            </h2>
-
-            <textarea
-              name="notes"
-              placeholder="Leave delivery instructions or notes here..."
-              value={form.notes}
-              onChange={handleChange}
-              rows={4}
-              className="w-full p-4 rounded-xl border border-deep/20 focus:outline-none focus:ring-2 focus:ring-gold bg-white resize-none"
+            <Input
+              required
+              placeholder="Country"
+              className="rounded-none bg-cream border-deep/20"
+              value={form.country}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  country: e.target.value,
+                })
+              }
             />
           </div>
         </div>
 
         {/* RIGHT SIDE */}
         <div>
-          <div className="bg-sand/40 rounded-2xl p-6 lg:p-8 sticky top-28 border border-deep/10">
-            <h2 className="font-serif text-2xl text-deep mb-6">
-              Order Summary
-            </h2>
+          <div className="bg-sand/30 p-6 sticky top-28">
+            <h2 className="font-serif text-xl text-deep mb-4">Order Summary</h2>
 
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 mb-4">
               {cart.items.map((i) => (
-                <div
-                  key={i.productId}
-                  className="flex gap-4 items-center"
-                >
+                <div key={i.productId} className="flex gap-3 text-sm">
                   <img
                     src={i.image}
-                    alt={i.name}
-                    className="w-20 h-20 object-cover rounded-xl"
+                    alt=""
+                    className="w-16 h-16 object-cover"
                   />
 
                   <div className="flex-1">
-                    <h3 className="font-serif text-deep text-lg">
-                      {i.name}
-                    </h3>
+                    <div className="font-serif text-deep">{i.name}</div>
 
-                    <p className="text-sm text-deep/60">
-                      Quantity: {i.qty}
-                    </p>
+                    <div className="text-deep/60 text-xs">Qty {i.qty}</div>
                   </div>
 
-                  <div className="font-medium text-deep">
-                    {fmt(i.price * i.qty)}
-                  </div>
+                  <div className="text-deep">{fmt(i.price * i.qty)}</div>
                 </div>
               ))}
             </div>
 
-            <div className="border-t border-deep/10 pt-4 space-y-3 text-sm">
+            <div className="border-t border-deep/10 pt-3 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span>{fmt(subtotal)}</span>
@@ -1819,23 +1700,22 @@ const Checkout = ({
 
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>
-                  {shipping === 0 ? "Free" : fmt(shipping)}
-                </span>
+
+                <span>{shipping === 0 ? "Free" : fmt(shipping)}</span>
               </div>
 
-              <div className="flex justify-between font-serif text-2xl pt-4 border-t border-deep/10">
+              <div className="flex justify-between font-serif text-xl pt-2 border-t border-deep/10">
                 <span>Total</span>
+
                 <span className="text-gold">{fmt(total)}</span>
               </div>
             </div>
 
             {/* PAYPAL */}
-            <div className="mt-8">
+            <div className="mt-6">
               <PayPalScriptProvider
                 options={{
-                  clientId:
-                    process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+                  clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
                   currency: "USD",
                 }}
               >
@@ -1848,10 +1728,6 @@ const Checkout = ({
                   }}
                   disabled={placing}
                   createOrder={(data, actions) => {
-                    if (!validateForm()) {
-                      return;
-                    }
-
                     return actions.order.create({
                       purchase_units: [
                         {
@@ -1882,14 +1758,8 @@ const Checkout = ({
               </PayPalScriptProvider>
             </div>
 
-            {placing && (
-              <div className="mt-4 text-center text-sm text-deep/60">
-                Processing payment...
-              </div>
-            )}
-
-            <div className="text-xs text-deep/50 mt-5 text-center">
-              🔒 Secure checkout powered by PayPal
+            <div className="text-xs text-deep/50 mt-3 text-center">
+              Secure checkout with PayPal
             </div>
           </div>
         </div>
@@ -1897,8 +1767,6 @@ const Checkout = ({
     </div>
   );
 };
-
-
 /* ================================================================= CONFIRMATION ================================================================= */
 
 const Confirmation = ({ order, goHome }) => (
