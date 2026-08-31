@@ -1,25 +1,41 @@
+// =====================================================================
+//  REPLACE:  app/admin/page.js
+// =====================================================================
+
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { verifySession, logout } from "@/lib/adminAuth";
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("adminLoggedIn");
+    // ask the SERVER whether we are logged in, not localStorage
+    verifySession().then((ok) => {
+      if (!ok) {
+        router.replace("/admin-login");
+      } else {
+        setChecking(false);
+      }
+    });
+  }, [router]);
 
-    if (!isLoggedIn) {
-      router.push("/admin-login");
-    }
-  }, []);
-
-  const logout = () => {
-    localStorage.removeItem("adminLoggedIn");
-
-    router.push("/");
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/admin-login");
   };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f5f0]">
+        <p className="text-[#0B2C4D]">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f5f0]">
@@ -27,7 +43,7 @@ export default function AdminDashboard() {
       <div className="bg-[#0B2C4D] text-white px-10 py-5 flex justify-between items-center">
         <h1 className="text-3xl font-serif">Admin Dashboard</h1>
 
-        <button onClick={logout} className="bg-red-500 px-4 py-2 rounded">
+        <button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded">
           Logout
         </button>
       </div>
@@ -35,71 +51,59 @@ export default function AdminDashboard() {
       {/* DASHBOARD CARDS */}
       <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 p-10">
         {/* ADD PRODUCT */}
-        <div
-          onClick={() => (window.location.href = "/admin/add-product")}
-          className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer"
-        >
-          <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
-            Add Product
-          </h2>
+        <Link href="/admin/add-product">
+          <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer h-full">
+            <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
+              Add Product
+            </h2>
 
-          <p className="text-gray-600">Add and manage products.</p>
-        </div>
+            <p className="text-gray-600">Add and manage products.</p>
+          </div>
+        </Link>
 
         {/* PRODUCT DETAILS */}
-        <div
-          onClick={() => (window.location.href = "/admin/products")}
-          className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer"
-        >
-          <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
-            Product Details
-          </h2>
+        <Link href="/admin/products">
+          <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer h-full">
+            <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
+              Product Details
+            </h2>
 
-          <p className="text-gray-600">View all added products.</p>
-        </div>
+            <p className="text-gray-600">View all added products.</p>
+          </div>
+        </Link>
 
-
-        {/* Orders Details */}
+        {/* ORDERS */}
         <Link href="/admin/orders">
-          <div className="bg-white shadow-md rounded-lg p-10 hover:shadow-xl transition cursor-pointer">
-            <h2 className="text-2xl font-bold text-[#0b2c4d] mb-4">Orders</h2>
+          <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer h-full">
+            <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
+              Orders
+            </h2>
 
             <p className="text-gray-600">View customer orders.</p>
           </div>
         </Link>
 
         {/* USER DETAILS */}
-        <div
-          onClick={() => (window.location.href = "/admin/users")}
-          className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer"
-        >
-          <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
-            User Details
-          </h2>
+        <Link href="/admin/users">
+          <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer h-full">
+            <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
+              User Details
+            </h2>
 
-          <p className="text-gray-600">View contact form submissions.</p>
-        </div>
-
-        {/* PAYMENT DETAILS */}
-        <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer">
-          <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
-            Payment Details
-          </h2>
-
-          <p className="text-gray-600">View payment history.</p>
-        </div>
+            <p className="text-gray-600">View contact form submissions.</p>
+          </div>
+        </Link>
 
         {/* SETTINGS */}
-        <div
-          onClick={() => (window.location.href = "/admin/settings")}
-          className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer"
-        >
-          <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
-            Settings
-          </h2>
+        <Link href="/admin/settings">
+          <div className="bg-white p-8 rounded shadow hover:shadow-xl transition cursor-pointer h-full">
+            <h2 className="text-2xl font-semibold text-[#0B2C4D] mb-2">
+              Settings
+            </h2>
 
-          <p className="text-gray-600">Change admin password.</p>
-        </div>
+            <p className="text-gray-600">Change admin password.</p>
+          </div>
+        </Link>
       </div>
     </div>
   );

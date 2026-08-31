@@ -1,7 +1,12 @@
+// =====================================================================
+//  REPLACE:  app/admin/settings/page.js
+// =====================================================================
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { verifySession, adminFetch } from "@/lib/adminAuth";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -10,39 +15,76 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [checking, setChecking] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("adminLoggedIn");
+    verifySession().then((ok) => {
+      if (!ok) {
+        router.replace("/admin-login");
+      } else {
+        setChecking(false);
+      }
+    });
+  }, [router]);
 
-    if (!isLoggedIn) {
-      router.push("/admin-login");
-    }
-  }, []);
-
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault();
 
-    const savedPassword = localStorage.getItem("adminPassword") || "123456";
+    setMessage("");
+    setIsError(false);
 
-    if (currentPassword !== savedPassword) {
-      alert("Current password is incorrect");
-
+    if (newPassword.length < 8) {
+      setIsError(true);
+      setMessage("New password must be at least 8 characters");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      alert("Passwords do not match");
-
+      setIsError(true);
+      setMessage("Passwords do not match");
       return;
     }
 
-    localStorage.setItem("adminPassword", newPassword);
+    setBusy(true);
 
-    alert("Password changed successfully");
+    try {
+      const res = await adminFetch("/api/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
 
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+      const data = await res.json();
+
+      if (data.success) {
+        setMessage("Password changed. Other devices have been logged out.");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setIsError(true);
+        setMessage(data.error || "Could not change password");
+      }
+    } catch (err) {
+      setIsError(true);
+      setMessage("Something went wrong");
+    } finally {
+      setBusy(false);
+    }
   };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f5f0]">
+        <p className="text-[#0B2C4D]">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f5f0] p-10">
@@ -58,15 +100,17 @@ export default function SettingsPage() {
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
           className="w-full border p-3 rounded"
+          autoComplete="current-password"
           required
         />
 
         <input
           type="password"
-          placeholder="New Password"
+          placeholder="New Password (min 8 characters)"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           className="w-full border p-3 rounded"
+          autoComplete="new-password"
           required
         />
 
@@ -76,14 +120,26 @@ export default function SettingsPage() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           className="w-full border p-3 rounded"
+          autoComplete="new-password"
           required
         />
 
+        {message && (
+          <p
+            className={
+              isError ? "text-red-500 text-sm" : "text-green-600 text-sm"
+            }
+          >
+            {message}
+          </p>
+        )}
+
         <button
           type="submit"
-          className="bg-[#0B2C4D] text-white px-6 py-3 rounded"
+          disabled={busy}
+          className="bg-[#0B2C4D] text-white px-6 py-3 rounded disabled:opacity-60"
         >
-          Change Password
+          {busy ? "Saving..." : "Change Password"}
         </button>
       </form>
     </div>

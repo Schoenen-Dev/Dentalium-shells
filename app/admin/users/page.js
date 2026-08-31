@@ -1,35 +1,52 @@
+// =====================================================================
+//  REPLACE:  app/admin/users/page.js
+//  Changes: session guard + adminFetch (contacts are now private)
+// =====================================================================
+
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { verifySession, adminFetch } from "@/lib/adminAuth";
 
 export default function UserDetails() {
-  const [contacts, setContacts] = useState([]);
+  const router = useRouter();
 
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    fetchContacts();
-  }, []);
+    verifySession().then((ok) => {
+      if (!ok) {
+        router.replace("/admin-login");
+      } else {
+        setChecking(false);
+        fetchContacts();
+      }
+    });
+  }, [router]);
 
   const fetchContacts = async () => {
     try {
-      const response = await fetch(
-        "https://backend.dentaliumshells.com/wp-json/custom/v1/contacts",
-      );
-
+      const response = await adminFetch("/wp-json/custom/v1/contacts");
       const data = await response.json();
 
-      console.log(data);
-
-      setContacts(data);
-
+      setContacts(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (error) {
       console.log(error);
-
       setLoading(false);
     }
   };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f5f0]">
+        <p className="text-[#0B2C4D]">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f5f0] p-10">
@@ -37,7 +54,7 @@ export default function UserDetails() {
         <h1 className="text-4xl font-serif text-[#0B2C4D]">User Details</h1>
 
         <button
-          onClick={() => window.history.back()}
+          onClick={() => router.push("/admin")}
           className="bg-[#0B2C4D] text-white px-5 py-2 rounded"
         >
           Back
@@ -49,13 +66,9 @@ export default function UserDetails() {
           <thead className="bg-[#0B2C4D] text-white">
             <tr>
               <th className="p-4 text-left">ID</th>
-
               <th className="p-4 text-left">Name</th>
-
               <th className="p-4 text-left">Email</th>
-
               <th className="p-4 text-left">Subject</th>
-
               <th className="p-4 text-left">Message</th>
             </tr>
           </thead>

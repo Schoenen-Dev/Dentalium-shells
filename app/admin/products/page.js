@@ -1,50 +1,55 @@
+// =====================================================================
+//  REPLACE:  app/admin/products/page.js
+//  Changes: session guard + adminFetch on edit/delete
+// =====================================================================
+
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { verifySession, adminFetch, BACKEND } from "@/lib/adminAuth";
 
 export default function ProductsPage() {
+  const router = useRouter();
+
   const [products, setProducts] = useState([]);
-
   const [search, setSearch] = useState("");
-
   const [categoryFilter, setCategoryFilter] = useState("");
-
   const [priceFilter, setPriceFilter] = useState("");
 
-  // EDIT STATES
-
   const [editData, setEditData] = useState(null);
-
   const [editCategory, setEditCategory] = useState("");
-
   const [editActualPrice, setEditActualPrice] = useState("");
-
   const [editSellingPrice, setEditSellingPrice] = useState("");
 
+  const [checking, setChecking] = useState(true);
+
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    verifySession().then((ok) => {
+      if (!ok) {
+        router.replace("/admin-login");
+      } else {
+        setChecking(false);
+        fetchProducts();
+      }
+    });
+  }, [router]);
 
-  // FETCH PRODUCTS
-
+  // FETCH PRODUCTS (public endpoint, no token needed)
   const fetchProducts = async () => {
     try {
-      const response = await fetch(
-        "https://backend.dentaliumshells.com/wp-json/custom/v1/products",
-      );
-
+      const response = await fetch(`${BACKEND}/wp-json/custom/v1/products`);
       const data = await response.json();
 
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.log(error);
     }
   };
 
   // FILTER PRODUCTS
-
   const filteredProducts = products.filter((item) => {
-    const matchesSearch = item.category
+    const matchesSearch = (item.category || "")
       .toLowerCase()
       .includes(search.toLowerCase());
 
@@ -58,80 +63,71 @@ export default function ProductsPage() {
   });
 
   // DELETE PRODUCT
-
   const handleDelete = async (id) => {
-    const confirmDelete = confirm("Delete this product?");
-
-    if (!confirmDelete) return;
+    if (!confirm("Delete this product?")) return;
 
     try {
-      await fetch(
-        `https://backend.dentaliumshells.com/wp-json/custom/v1/products/${id}`,
+      const res = await adminFetch(`/wp-json/custom/v1/products/${id}`, {
+        method: "DELETE",
+      });
 
-        {
-          method: "DELETE",
-        },
-      );
+      const data = await res.json();
 
-      setProducts(products.filter((item) => item.id !== id));
+      if (data.success) {
+        setProducts(products.filter((item) => item.id !== id));
+      } else {
+        alert(data.error || "Delete failed");
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   // OPEN EDIT MODAL
-
   const handleEdit = (item) => {
     setEditData(item);
-
     setEditCategory(item.category);
-
     setEditActualPrice(item.actual_price);
-
     setEditSellingPrice(item.selling_price);
   };
 
   // UPDATE PRODUCT
-
   const handleUpdate = async () => {
     try {
-      const response = await fetch(
-        `https://backend.dentaliumshells.com/wp-json/custom/v1/products/${editData.id}`,
-
+      const res = await adminFetch(
+        `/wp-json/custom/v1/products/${editData.id}`,
         {
           method: "PUT",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
           body: JSON.stringify({
             id: editData.id,
-
             category: editCategory,
-
             actual_price: editActualPrice,
-
             selling_price: editSellingPrice,
           }),
         },
       );
 
-      const data = await response.json();
+      const data = await res.json();
 
       if (data.success) {
         alert("Product updated successfully");
-
         fetchProducts();
-
         setEditData(null);
       } else {
-        alert("Update failed");
+        alert(data.error || "Update failed");
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f5f0]">
+        <p className="text-[#0B2C4D]">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f5f0] p-6">
@@ -141,7 +137,7 @@ export default function ProductsPage() {
         <h1 className="text-4xl font-serif text-[#0B2C4D]">Product Details</h1>
 
         <button
-          onClick={() => (window.location.href = "/admin")}
+          onClick={() => router.push("/admin")}
           className="bg-[#0B2C4D] text-white px-5 py-2 rounded hover:bg-[#c9a15d] transition"
         >
           Back
@@ -189,15 +185,10 @@ export default function ProductsPage() {
           <thead className="bg-[#0B2C4D] text-white">
             <tr>
               <th className="p-3 text-sm font-medium">ID</th>
-
               <th className="p-3 text-sm font-medium">Image</th>
-
               <th className="p-3 text-sm font-medium">Category</th>
-
               <th className="p-3 text-sm font-medium">Actual Price</th>
-
               <th className="p-3 text-sm font-medium">Selling Price</th>
-
               <th className="p-3 text-sm font-medium">Actions</th>
             </tr>
           </thead>

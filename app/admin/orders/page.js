@@ -1,71 +1,75 @@
+// =====================================================================
+//  REPLACE:  app/admin/orders/page.js
+//  Changes: session guard + adminFetch (orders are now private)
+// =====================================================================
+
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { verifySession, adminFetch } from "@/lib/adminAuth";
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState([]);
+  const router = useRouter();
 
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    verifySession().then((ok) => {
+      if (!ok) {
+        router.replace("/admin-login");
+      } else {
+        setChecking(false);
+        fetchOrders();
+      }
+    });
+  }, [router]);
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(
-        "https://backend.dentaliumshells.com/wp-json/custom/v1/orders",
-      );
-
+      const response = await adminFetch("/wp-json/custom/v1/orders");
       const data = await response.json();
 
-      setOrders(data);
-
+      setOrders(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (error) {
       console.log(error);
-
       setLoading(false);
     }
   };
 
   const updateStatus = async (id, status) => {
     try {
-      const response = await fetch(
-        `https://backend.dentaliumshells.com/wp-json/custom/v1/orders/${id}`,
-
-        {
-          method: "PUT",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            payment_status: status,
-          }),
-        },
-      );
+      const response = await adminFetch(`/wp-json/custom/v1/orders/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({ payment_status: status }),
+      });
 
       const data = await response.json();
 
       if (data.success) {
         setOrders((prev) =>
           prev.map((order) =>
-            order.id === id
-              ? {
-                  ...order,
-                  payment_status: status,
-                }
-              : order,
+            order.id === id ? { ...order, payment_status: status } : order,
           ),
         );
+      } else {
+        alert(data.error || "Could not update status");
       }
-      
     } catch (error) {
       console.log(error);
     }
   };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f5f0]">
+        <p className="text-[#0B2C4D]">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 min-h-screen bg-[#f8f5f0]">
@@ -73,7 +77,7 @@ export default function OrdersPage() {
         <h1 className="text-4xl font-bold text-[#0b2c4d]">Orders</h1>
 
         <button
-          onClick={() => window.history.back()}
+          onClick={() => router.push("/admin")}
           className="bg-[#0b2c4d] text-white px-5 py-2 rounded"
         >
           Back
@@ -90,23 +94,14 @@ export default function OrdersPage() {
             <thead>
               <tr className="bg-[#0b2c4d] text-white">
                 <th className="p-3 text-left">ID</th>
-
                 <th className="p-3 text-left">Customer</th>
-
                 <th className="p-3 text-left">Email</th>
-
                 <th className="p-3 text-left">Address</th>
-
                 <th className="p-3 text-left">Products</th>
-
                 <th className="p-3 text-left">Subtotal</th>
-
                 <th className="p-3 text-left">Shipping</th>
-
                 <th className="p-3 text-left">Total</th>
-
                 <th className="p-3 text-left">Status</th>
-
                 <th className="p-3 text-left">Date</th>
               </tr>
             </thead>
@@ -116,7 +111,7 @@ export default function OrdersPage() {
                 let items = [];
 
                 try {
-                  items = JSON.parse(order.items);
+                  items = JSON.parse(order.items) || [];
                 } catch (e) {}
 
                 return (
@@ -180,15 +175,11 @@ export default function OrdersPage() {
                         onChange={(e) => updateStatus(order.id, e.target.value)}
                         className="border px-3 py-2 rounded bg-white"
                       >
-                        <option value="pending">Pending</option>
-
-                        <option value="paid">Paid</option>
-
-                        <option value="shipped">Shipped</option>
-
-                        <option value="delivered">Delivered</option>
-
-                        <option value="cancelled">Cancelled</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
                       </select>
                     </td>
 

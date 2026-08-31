@@ -1,7 +1,12 @@
+// =====================================================================
+//  REPLACE:  app/admin-login/page.js
+// =====================================================================
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { login } from "@/lib/adminAuth";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -9,20 +14,26 @@ export default function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // TEMPORARY ADMIN LOGIN
-    const adminUsername = "admin";
-    const adminPassword = localStorage.getItem("adminPassword") || "123456";
+    setError("");
+    setBusy(true);
 
-    if (username === adminUsername && password === adminPassword) {
-      localStorage.setItem("adminLoggedIn", "true");
+    try {
+      const data = await login(username, password);
 
-      router.push("/admin");
-    } else {
-      setError("Invalid username or password");
+      if (data.success) {
+        router.push("/admin");
+      } else {
+        setError(data.error || "Invalid username or password");
+      }
+    } catch (err) {
+      setError("Could not reach the server. Please try again.");
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -40,6 +51,7 @@ export default function AdminLogin() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full border p-3 rounded"
+            autoComplete="username"
             required
           />
 
@@ -49,6 +61,7 @@ export default function AdminLogin() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border p-3 rounded"
+            autoComplete="current-password"
             required
           />
 
@@ -56,9 +69,10 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            className="w-full bg-[#0B2C4D] text-white py-3 rounded hover:bg-[#c9a15d] transition"
+            disabled={busy}
+            className="w-full bg-[#0B2C4D] text-white py-3 rounded hover:bg-[#c9a15d] transition disabled:opacity-60"
           >
-            Login
+            {busy ? "Signing in..." : "Login"}
           </button>
         </form>
       </div>
