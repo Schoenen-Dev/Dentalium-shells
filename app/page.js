@@ -59,6 +59,35 @@ function getSession() {
   return s;
 }
 
+/* ---------------- CART STORAGE (browser only) ----------------
+   The cart lives in localStorage, not on the server.
+   Prices are re-checked on the server at checkout, so nothing
+   here can be tampered with to change what a customer pays.
+   ------------------------------------------------------------- */
+
+const CART_KEY = "ds_cart";
+
+const readCart = () => {
+  if (typeof window === "undefined") return { items: [] };
+
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+
+    return parsed && Array.isArray(parsed.items) ? parsed : { items: [] };
+  } catch (e) {
+    return { items: [] };
+  }
+};
+
+const writeCart = (cart) => {
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  } catch (e) {}
+
+  return cart;
+};
+
 const App = () => {
   const [view, setView] = useState("home"); // home | shop | product | checkout | admin | confirm
   const [products, setProducts] = useState([]);
@@ -79,8 +108,6 @@ const App = () => {
     setSessionId(getSession());
   }, []);
 
-  
-
   useEffect(() => {
     if (!sessionId) return;
     fetchProducts();
@@ -100,99 +127,56 @@ const App = () => {
     const d = await r.json();
     setCategories(d.categories || ["All"]);
   };
-  const fetchCart = async () => {
-    if (!sessionId) return;
-    const r = await fetch(`/api/cart/${sessionId}`);
-    const d = await r.json();
-    setCart(d.cart || { items: [] });
+  const fetchCart = () => {
+    setCart(readCart());
   };
 
-  const addToCart = async (product, qty = 1) => {
-    const r = await fetch("/api/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({
+  const addToCart = (product, qty = 1) => {
+    const cart = readCart();
 
-  sessionId,
+    const index = cart.items.findIndex((i) => i.productId === product.id);
 
-  productId: product.id,
+    if (index >= 0) {
+      cart.items[index].qty += qty;
+    } else {
+      cart.items.push({
+        productId: product.id,
+        qty,
+        name: product.name,
+        price: product.price,
+        image: product.images?.[0],
+      });
+    }
 
-  qty,
-
-  action: "add",
-
-  price: product.price,
-
-  name: product.name,
-
-  image: product.images?.[0],
-
-}),
-    });
-    const d = await r.json();
-    setCart(d.cart);
+    setCart(writeCart(cart));
     setCartOpen(true);
   };
 
-const updateQty = async (productId, qty) => {
-  if (qty < 1) return;
+  const updateQty = (productId, qty) => {
+    if (qty < 1) return;
 
-  try {
-    const response = await fetch("/api/cart", {
-      method: "POST",
+    const cart = readCart();
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const index = cart.items.findIndex((i) => i.productId === productId);
 
-      body: JSON.stringify({
-        sessionId,
-        productId,
-        qty,
-        action: "set",
-      }),
-    });
+    if (index >= 0) {
+      cart.items[index].qty = qty;
+    }
 
-    const data = await response.json();
+    setCart(writeCart(cart));
+  };
 
-    setCart(data.cart || { items: [] });
-  } catch (error) {
-    console.log(error);
-  }
-};
-const removeItem = async (productId) => {
-  try {
-    const response = await fetch("/api/cart", {
-      method: "POST",
+  const removeItem = (productId) => {
+    const cart = readCart();
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+    cart.items = cart.items.filter((i) => i.productId !== productId);
 
-      body: JSON.stringify({
-        sessionId,
-
-        productId,
-
-        action: "remove",
-      }),
-    });
-
-    const data = await response.json();
-
-    setCart(
-      data.cart || {
-        items: [],
-      },
-    );
-  } catch (error) {
-    console.log(error);
-  }
-};
+    setCart(writeCart(cart));
+  };
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
-      if (activeCat !== "All" && p.category !== activeCat) return false;
+      if (activeCat !== "All" && p.collection !== activeCat) return false;
       if (search && !p.name.toLowerCase().includes(search.toLowerCase()))
         return false;
       return true;
@@ -226,8 +210,6 @@ const removeItem = async (productId) => {
     setNewsletterOk(true);
     setNewsletter("");
   };
-
-  
 
   return (
     <div className="min-h-screen bg-cream">
@@ -1228,25 +1210,23 @@ const ProductCard = ({ product, onSelect, onAdd }) => {
 
       {/* QUANTITY SELECTOR */}
 
-      
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => setQty((prev) => (prev > 1 ? prev - 1 : 1))}
-            className="w-10 h-10 border border-deep/20 flex items-center justify-center hover:bg-deep hover:text-white transition"
-          >
-            -
-          </button>
+      <div className="flex items-center gap-3 mb-4">
+        <button
+          onClick={() => setQty((prev) => (prev > 1 ? prev - 1 : 1))}
+          className="w-10 h-10 border border-deep/20 flex items-center justify-center hover:bg-deep hover:text-white transition"
+        >
+          -
+        </button>
 
-          <div className="w-10 text-center font-medium">{qty}</div>
+        <div className="w-10 text-center font-medium">{qty}</div>
 
-          <button
-            onClick={() => setQty((prev) => prev + 1)}
-            className="w-10 h-10 border border-deep/20 flex items-center justify-center hover:bg-deep hover:text-white transition"
-          >
-            +
-          </button>
-        </div>
-     
+        <button
+          onClick={() => setQty((prev) => prev + 1)}
+          className="w-10 h-10 border border-deep/20 flex items-center justify-center hover:bg-deep hover:text-white transition"
+        >
+          +
+        </button>
+      </div>
 
       {/* ADD TO BAG BUTTON */}
 
@@ -1334,7 +1314,7 @@ const Shop = ({
 const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
   const [qty, setQty] = useState(1);
   const related = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
+    .filter((p) => p.collection === product.collection && p.id !== product.id)
     .slice(0, 4);
   return (
     <div className="fade-in max-w-7xl mx-auto px-4 lg:px-8 py-10">
@@ -1441,7 +1421,7 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
             </Button>
           </div>
           <div className="flex items-center gap-2 text-sm text-deep/60 mt-4">
-            <Truck className="w-4 h-4" /> 
+            <Truck className="w-4 h-4" />
             Ships in 2-3 days
           </div>
         </div>
@@ -1540,6 +1520,8 @@ const Checkout = ({
 
       if (data.success) {
         alert("Payment successful & order placed!");
+
+        localStorage.removeItem("ds_cart");
 
         setCart({ items: [] });
 
@@ -2227,19 +2209,19 @@ const Footer = ({ goShop, setView }) => (
 
           <ul className="space-y-5 text-[16px] text-white/60">
             <li className="hover:text-gold transition cursor-pointer">
-               <a href="/privacy-policy-2">Privacy Policy</a>
-             </li>
+              <a href="/privacy-policy-2">Privacy Policy</a>
+            </li>
 
             <li className="hover:text-gold transition cursor-pointer">
               <a href="/returns-exchanges">Returns + Exchanges</a>
-             </li>
+            </li>
 
             <li className="hover:text-gold transition cursor-pointer">
-               <a href="/shipping">Shipping</a>
-             </li>
+              <a href="/shipping">Shipping</a>
+            </li>
 
-           <li className="hover:text-gold transition cursor-pointer">
-             <a href="/terms">Terms & Conditions</a>
+            <li className="hover:text-gold transition cursor-pointer">
+              <a href="/terms">Terms & Conditions</a>
             </li>
           </ul>
         </div>
@@ -2346,8 +2328,8 @@ const Footer = ({ goShop, setView }) => (
             </li>
 
             <li className="hover:text-gold transition cursor-pointer">
-  <a href="/faq-v1">FAQ</a>
-</li>
+              <a href="/faq-v1">FAQ</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -2370,6 +2352,5 @@ const Footer = ({ goShop, setView }) => (
     </div>
   </footer>
 );
-
 
 export default App;
