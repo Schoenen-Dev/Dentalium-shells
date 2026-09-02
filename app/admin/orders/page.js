@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import AdminShell from "@/components/AdminShell";
 import { adminFetch } from "@/lib/adminAuth";
+import { notify } from "@/components/Notice";
 
 const STATUSES = ["Pending", "Paid", "Shipped", "Delivered", "Cancelled"];
 
@@ -54,8 +55,10 @@ export default function OrdersPage() {
         setOrders((prev) =>
           prev.map((o) => (o.id === id ? { ...o, payment_status: status } : o)),
         );
+
+        notify.success(`Order #${id} marked ${status.toLowerCase()}.`);
       } else {
-        alert(data.error || "Couldn't update that order. Try again.");
+        notify.error(data.error || "Couldn't update that order. Try again.");
       }
     } catch (error) {
       console.log(error);

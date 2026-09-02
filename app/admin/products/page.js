@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Pencil, Trash2, X } from "lucide-react";
 import AdminShell from "@/components/AdminShell";
 import { adminFetch, BACKEND } from "@/lib/adminAuth";
+import { notify, confirmAction } from "@/components/Notice";
 
 const COLLECTIONS = ["Dentalium Shells", "Seashell Jewelry", "Coastal Decor"];
 
@@ -88,8 +89,10 @@ export default function ProductsPage() {
           prev.map((p) => (p.id === editing.id ? { ...p, ...form } : p)),
         );
         setEditing(null);
+
+        notify.success("Changes saved.");
       } else {
-        alert(data.error || "Couldn't save those changes.");
+        notify.error(data.error || "Couldn't save those changes.");
       }
     } catch (error) {
       console.log(error);
@@ -99,7 +102,14 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (item) => {
-    if (!confirm(`Remove "${item.category}" from the shop?`)) return;
+    const yes = await confirmAction({
+      title: `Remove "${item.category}"?`,
+      body: "It disappears from the shop straight away. This can't be undone.",
+      confirmLabel: "Remove",
+      danger: true,
+    });
+
+    if (!yes) return;
 
     try {
       const res = await adminFetch(`/wp-json/custom/v1/products/${item.id}`, {
@@ -110,8 +120,10 @@ export default function ProductsPage() {
 
       if (data.success) {
         setProducts((prev) => prev.filter((p) => p.id !== item.id));
+
+        notify.success(`"${item.category}" removed.`);
       } else {
-        alert(data.error || "Couldn't remove that product.");
+        notify.error(data.error || "Couldn't remove that product.");
       }
     } catch (error) {
       console.log(error);

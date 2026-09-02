@@ -1476,6 +1476,7 @@ const ProductPage = ({ product, addToCart, goShop, products, goProduct }) => {
 /* ================================================================= CHECKOUT ================================================================= */
 
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { notify, confirmAction } from "@/components/Notice";
 
 const Checkout = ({
   cart,
@@ -1544,7 +1545,7 @@ const Checkout = ({
       const data = await response.json();
 
       if (data.success) {
-        alert("Payment successful & order placed!");
+        notify.success("Payment received. Your order is on its way.");
 
         localStorage.removeItem("ds_cart");
 
@@ -1552,14 +1553,16 @@ const Checkout = ({
 
         onPlaced(data);
       } else {
-        alert("Order save failed");
+        notify.error(
+          "Payment went through but the order didn't save. Contact us and we'll sort it out.",
+        );
 
         console.log(data);
       }
     } catch (error) {
       console.log(error);
 
-      alert("Something went wrong");
+      notify.error("Something went wrong placing the order. Please try again.");
     }
   };
 
@@ -1759,7 +1762,9 @@ const Checkout = ({
                   onError={(err) => {
                     console.log(err);
 
-                    alert("Payment failed");
+                    notify.error(
+                      "The payment didn't go through. Nothing has been charged.",
+                    );
                   }}
                 />
               </PayPalScriptProvider>
@@ -1872,7 +1877,14 @@ const Admin = ({ onCreated, products }) => {
     }
   };
   const del = async (id) => {
-    if (!confirm("Delete?")) return;
+    const yes = await confirmAction({
+      title: "Remove this product?",
+      body: "It disappears from the shop straight away.",
+      confirmLabel: "Remove",
+      danger: true,
+    });
+
+    if (!yes) return;
     await fetch(`/api/products/${id}`, { method: "DELETE" });
     onCreated();
   };
@@ -2034,7 +2046,7 @@ const Contact = () => {
 
       console.log(data);
 
-      alert("Message sent successfully!");
+      notify.success("Thanks — your message is on its way. We'll reply soon.");
 
       setFormData({
         name: "",
@@ -2045,7 +2057,7 @@ const Contact = () => {
     } catch (error) {
       console.log(error);
 
-      alert("Something went wrong");
+      notify.error("Your message didn't send. Please try again.");
     }
   };
 
