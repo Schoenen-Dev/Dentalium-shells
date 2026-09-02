@@ -1,13 +1,14 @@
 // =====================================================================
 //  REPLACE:  app/admin/products/page.js
-//  Changes: session guard + adminFetch on edit/delete
 // =====================================================================
 
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { verifySession, adminFetch, BACKEND } from "@/lib/adminAuth";
+import { Pencil, Trash2, X } from "lucide-react";
+import AdminShell from "@/components/AdminShell";
+import { adminFetch, BACKEND } from "@/lib/adminAuth";
 
 const COLLECTIONS = ["Dentalium Shells", "Seashell Jewelry", "Coastal Decor"];
 
@@ -15,297 +16,398 @@ export default function ProductsPage() {
   const router = useRouter();
 
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [priceFilter, setPriceFilter] = useState("");
+  const [filter, setFilter] = useState("All");
 
-  const [editData, setEditData] = useState(null);
-  const [editCategory, setEditCategory] = useState("");
-  const [editCollection, setEditCollection] = useState(COLLECTIONS[0]);
-  const [editActualPrice, setEditActualPrice] = useState("");
-  const [editSellingPrice, setEditSellingPrice] = useState("");
-
-  const [checking, setChecking] = useState(true);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({
+    category: "",
+    collection: COLLECTIONS[0],
+    actual_price: "",
+    selling_price: "",
+  });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    verifySession().then((ok) => {
-      if (!ok) {
-        router.replace("/admin-login");
-      } else {
-        setChecking(false);
-        fetchProducts();
-      }
-    });
-  }, [router]);
+    fetchProducts();
+  }, []);
 
-  // FETCH PRODUCTS (public endpoint, no token needed)
   const fetchProducts = async () => {
     try {
-      const response = await fetch(`${BACKEND}/wp-json/custom/v1/products`);
+      const response = await fetch(`${BACKEND}/wp-json/custom/v1/products`, {
+        cache: "no-store",
+      });
+
       const data = await response.json();
 
       setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // FILTER PRODUCTS
-  const filteredProducts = products.filter((item) => {
-    const matchesSearch = (item.category || "")
-      .toLowerCase()
-      .includes(search.toLowerCase());
+  const money = (n) =>
+    "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
 
-    const matchesCategory =
-      categoryFilter === "" || item.collection === categoryFilter;
+  const term = search.trim().toLowerCase();
 
-    const matchesPrice =
-      priceFilter === "" || Number(item.selling_price) <= Number(priceFilter);
+  const visible = products.filter((p) => {
+    const matchesSearch = !term || (p.category || "").toLowerCase().includes(term);
+    const matchesFilter = filter === "All" || p.collection === filter;
 
-    return matchesSearch && matchesCategory && matchesPrice;
+    return matchesSearch && matchesFilter;
   });
 
-  // DELETE PRODUCT
-  const handleDelete = async (id) => {
-    if (!confirm("Delete this product?")) return;
+  const openEdit = (item) => {
+    setEditing(item);
+    setForm({
+      category: item.category || "",
+      collection: item.collection || COLLECTIONS[0],
+      actual_price: item.actual_price || "",
+      selling_price: item.selling_price || "",
+    });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setSaving(true);
 
     try {
-      const res = await adminFetch(`/wp-json/custom/v1/products/${id}`, {
+      const res = await adminFetch(
+        `/wp-json/custom/v1/products/${editing.id}`,
+        { method: "PUT", body: JSON.stringify({ id: editing.id, ...form }) },
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editing.id ? { ...p, ...form } : p)),
+        );
+        setEditing(null);
+      } else {
+        alert(data.error || "Couldn't save those changes.");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (item) => {
+    if (!confirm(`Remove "${item.category}" from the shop?`)) return;
+
+    try {
+      const res = await adminFetch(`/wp-json/custom/v1/products/${item.id}`, {
         method: "DELETE",
       });
 
       const data = await res.json();
 
       if (data.success) {
-        setProducts(products.filter((item) => item.id !== id));
+        setProducts((prev) => prev.filter((p) => p.id !== item.id));
       } else {
-        alert(data.error || "Delete failed");
+        alert(data.error || "Couldn't remove that product.");
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  // OPEN EDIT MODAL
-  const handleEdit = (item) => {
-    setEditData(item);
-    setEditCategory(item.category);
-    setEditCollection(item.collection || COLLECTIONS[0]);
-    setEditActualPrice(item.actual_price);
-    setEditSellingPrice(item.selling_price);
-  };
+  const field =
+    "w-full bg-transparent border-b border-[#0b2f49]/20 pb-2.5 text-[16px] text-[#0b2f49] outline-none transition-colors focus:border-[#b88e4b]";
 
-  // UPDATE PRODUCT
-  const handleUpdate = async () => {
-    try {
-      const res = await adminFetch(
-        `/wp-json/custom/v1/products/${editData.id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify({
-            id: editData.id,
-            category: editCategory,
-            collection: editCollection,
-            actual_price: editActualPrice,
-            selling_price: editSellingPrice,
-          }),
-        },
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        alert("Product updated successfully");
-        fetchProducts();
-        setEditData(null);
-      } else {
-        alert(data.error || "Update failed");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  if (checking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f8f5f0]">
-        <p className="text-[#0B2C4D]">Loading...</p>
-      </div>
-    );
-  }
+  const label = "block text-[13px] font-medium text-[#0b2f49]/70 mb-2";
 
   return (
-    <div className="min-h-screen bg-[#f8f5f0] p-6">
-      {/* TOP SECTION */}
+    <AdminShell
+      title="Products"
+      subtitle="Everything currently listed in the shop."
+      actions={
+        <div className="flex flex-wrap gap-3">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name"
+            className="w-full sm:w-56 bg-white border border-[#ebdec8] px-4 py-2.5 text-[14px] text-[#0b2f49] outline-none focus:border-[#b88e4b] transition-colors"
+          />
 
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-serif text-[#0B2C4D]">Product Details</h1>
+          <button
+            onClick={() => router.push("/admin/add-product")}
+            className="bg-[#0b2f49] text-white text-[14px] px-6 py-2.5 hover:bg-[#b88e4b] transition-colors"
+          >
+            Add a product
+          </button>
+        </div>
+      }
+    >
+      {/* ---------------- COLLECTION FILTER ---------------- */}
 
-        <button
-          onClick={() => router.push("/admin")}
-          className="bg-[#0B2C4D] text-white px-5 py-2 rounded hover:bg-[#c9a15d] transition"
-        >
-          Back
-        </button>
+      <div className="flex flex-wrap gap-6 mb-8">
+        {["All", ...COLLECTIONS].map((c) => {
+          const count =
+            c === "All"
+              ? products.length
+              : products.filter((p) => p.collection === c).length;
+
+          return (
+            <button
+              key={c}
+              onClick={() => setFilter(c)}
+              className={`relative pb-2 text-[15px] transition-colors ${
+                filter === c
+                  ? "text-[#0b2f49]"
+                  : "text-[#0b2f49]/45 hover:text-[#0b2f49]/75"
+              }`}
+            >
+              {c}
+              <span className="ml-1.5 text-[13px] text-[#0b2f49]/35">
+                {count}
+              </span>
+
+              {filter === c && (
+                <span className="absolute left-0 right-0 bottom-0 h-[2px] bg-[#b88e4b]" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* FILTERS */}
+      {/* ---------------- GRID ---------------- */}
 
-      <div className="flex gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search product name"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border p-2 rounded w-full"
-        />
-
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">All Collections</option>
-
-          {COLLECTIONS.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
+      {loading ? (
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-px bg-[#ebdec8] border border-[#ebdec8]">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-white h-[132px] animate-pulse" />
           ))}
-        </select>
+        </div>
+      ) : visible.length === 0 ? (
+        <div className="bg-white border border-[#ebdec8] px-8 py-20 text-center">
+          <p className="font-serif text-[22px] text-[#0b2f49]/40">
+            {products.length === 0 ? "Nothing listed yet" : "No matches"}
+          </p>
 
-        <input
-          type="number"
-          placeholder="Max Price"
-          value={priceFilter}
-          onChange={(e) => setPriceFilter(e.target.value)}
-          className="border p-2 rounded"
-        />
-      </div>
+          <p className="mt-2 mb-7 text-[14px] text-[#0b2f49]/40">
+            {products.length === 0
+              ? "Add your first piece and it goes straight into the shop."
+              : "Try another name or collection."}
+          </p>
 
-      {/* TABLE */}
+          {products.length === 0 && (
+            <button
+              onClick={() => router.push("/admin/add-product")}
+              className="bg-[#0b2f49] text-white text-[14px] px-7 py-3 hover:bg-[#b88e4b] transition-colors"
+            >
+              Add a product
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-px bg-[#ebdec8] border border-[#ebdec8]">
+          {visible.map((item) => {
+            const full = Number(item.actual_price);
+            const now = Number(item.selling_price);
+            const off = full > now ? Math.round(((full - now) / full) * 100) : 0;
 
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="w-full text-left">
-          <thead className="bg-[#0B2C4D] text-white">
-            <tr>
-              <th className="p-3 text-sm font-medium">ID</th>
-              <th className="p-3 text-sm font-medium">Image</th>
-              <th className="p-3 text-sm font-medium">Name</th>
-              <th className="p-3 text-sm font-medium">Collection</th>
-              <th className="p-3 text-sm font-medium">Actual Price</th>
-              <th className="p-3 text-sm font-medium">Selling Price</th>
-              <th className="p-3 text-sm font-medium">Actions</th>
-            </tr>
-          </thead>
+            return (
+              <article key={item.id} className="group bg-white p-5 flex gap-5">
+                <img
+                  src={item.image}
+                  alt={item.category}
+                  className="w-[92px] h-[92px] object-cover shrink-0"
+                />
 
-          <tbody>
-            {filteredProducts.map((item) => (
-              <tr key={item.id} className="border-b hover:bg-gray-50">
-                <td className="p-3 text-sm">{item.id}</td>
+                <div className="min-w-0 flex-1 flex flex-col">
+                  <p className="text-[15px] text-[#0b2f49] leading-snug">
+                    {item.category}
+                  </p>
 
-                <td className="p-3">
-                  <img
-                    src={item.image}
-                    alt={item.category}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                </td>
+                  <p className="mt-1 text-[13px] text-[#0b2f49]/45">
+                    {item.collection}
+                  </p>
 
-                <td className="p-3 text-sm">{item.category}</td>
+                  <div className="mt-auto pt-3 flex items-baseline gap-2">
+                    <span className="font-serif text-[19px] text-[#0b2f49]">
+                      {money(now)}
+                    </span>
 
-                <td className="p-3 text-sm">{item.collection}</td>
-
-                <td className="p-3 text-sm">${item.actual_price}</td>
-
-                <td className="p-3 text-sm">${item.selling_price}</td>
-
-                <td className="p-3">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded text-xs"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded text-xs"
-                    >
-                      Delete
-                    </button>
+                    {off > 0 && (
+                      <>
+                        <span className="text-[13px] text-[#0b2f49]/35 line-through">
+                          {money(full)}
+                        </span>
+                        <span className="text-[12px] text-[#b88e4b]">
+                          {off}% off
+                        </span>
+                      </>
+                    )}
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </div>
 
-      {/* EDIT MODAL */}
+                <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => openEdit(item)}
+                    aria-label={`Edit ${item.category}`}
+                    className="p-2 text-[#0b2f49]/45 hover:text-[#0b2f49] transition-colors"
+                  >
+                    <Pencil className="w-4 h-4" strokeWidth={1.75} />
+                  </button>
 
-      {editData && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-6">Edit Product</h2>
+                  <button
+                    onClick={() => handleDelete(item)}
+                    aria-label={`Remove ${item.category}`}
+                    className="p-2 text-[#0b2f49]/45 hover:text-[#b4432f] transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" strokeWidth={1.75} />
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
 
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={editCategory}
-                onChange={(e) => setEditCategory(e.target.value)}
-                className="w-full border p-3 rounded"
-                placeholder="Product Name"
-              />
+      {/* ---------------- EDIT PANEL ---------------- */}
 
-              <select
-                value={editCollection}
-                onChange={(e) => setEditCollection(e.target.value)}
-                className="w-full border p-3 rounded bg-white"
+      {editing && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div
+            className="absolute inset-0 bg-[#0b2f49]/40"
+            onClick={() => setEditing(null)}
+          />
+
+          <form
+            onSubmit={handleUpdate}
+            className="relative w-full max-w-[420px] bg-[#FBF7F1] h-full overflow-y-auto p-8 lg:p-10"
+          >
+            <div className="flex items-start justify-between mb-8">
+              <h2 className="font-serif text-[26px] text-[#0b2f49]">
+                Edit product
+              </h2>
+
+              <button
+                type="button"
+                onClick={() => setEditing(null)}
+                aria-label="Close"
+                className="p-2 -mr-2 text-[#0b2f49]/45 hover:text-[#0b2f49] transition-colors"
               >
-                {COLLECTIONS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              <input
-                type="number"
-                value={editActualPrice}
-                onChange={(e) => setEditActualPrice(e.target.value)}
-                className="w-full border p-3 rounded"
-                placeholder="Actual Price"
-              />
+            <img
+              src={editing.image}
+              alt={editing.category}
+              className="w-full aspect-square object-cover mb-8"
+            />
 
-              <input
-                type="number"
-                value={editSellingPrice}
-                onChange={(e) => setEditSellingPrice(e.target.value)}
-                className="w-full border p-3 rounded"
-                placeholder="Selling Price"
-              />
+            <div className="space-y-7">
+              <div>
+                <label htmlFor="e-name" className={label}>
+                  Product name
+                </label>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={handleUpdate}
-                  className="bg-green-600 text-white px-5 py-2 rounded"
+                <input
+                  id="e-name"
+                  value={form.category}
+                  onChange={(e) =>
+                    setForm({ ...form, category: e.target.value })
+                  }
+                  required
+                  className={field}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="e-collection" className={label}>
+                  Collection
+                </label>
+
+                <select
+                  id="e-collection"
+                  value={form.collection}
+                  onChange={(e) =>
+                    setForm({ ...form, collection: e.target.value })
+                  }
+                  className={`${field} cursor-pointer`}
                 >
-                  Update
+                  {COLLECTIONS.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="e-full" className={label}>
+                    Full price
+                  </label>
+
+                  <input
+                    id="e-full"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.actual_price}
+                    onChange={(e) =>
+                      setForm({ ...form, actual_price: e.target.value })
+                    }
+                    required
+                    className={field}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="e-now" className={label}>
+                    Price paid
+                  </label>
+
+                  <input
+                    id="e-now"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.selling_price}
+                    onChange={(e) =>
+                      setForm({ ...form, selling_price: e.target.value })
+                    }
+                    required
+                    className={field}
+                  />
+                </div>
+              </div>
+
+              <p className="text-[13px] text-[#0b2f49]/40">
+                To change the photo, remove this product and add it again.
+              </p>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 bg-[#0b2f49] text-white text-[15px] py-4 hover:bg-[#b88e4b] transition-colors disabled:opacity-50"
+                >
+                  {saving ? "Saving…" : "Save changes"}
                 </button>
 
                 <button
-                  onClick={() => setEditData(null)}
-                  className="bg-gray-400 text-white px-5 py-2 rounded"
+                  type="button"
+                  onClick={() => setEditing(null)}
+                  className="px-7 border border-[#0b2f49]/20 text-[15px] text-[#0b2f49] hover:border-[#b88e4b] transition-colors"
                 >
                   Cancel
                 </button>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       )}
-    </div>
+    </AdminShell>
   );
 }

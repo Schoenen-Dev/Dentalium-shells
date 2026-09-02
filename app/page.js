@@ -272,37 +272,51 @@ const App = () => {
             </div>
           </button>
           <div className="hidden md:flex items-center gap-10 font-sans text-[16px] font-medium tracking-wide">
-            <button
-              onClick={() => setView("home")}
-              className="hover:text-gold transition"
-            >
-              Home
-            </button>
-            <button
-              onClick={() => setView("about")}
-              className="hover:text-gold transition"
-            >
-              About Us
-            </button>
-            <button
-              onClick={() => goShop("All")}
-              className="hover:text-gold transition"
-            >
-              Shop All
-            </button>
-            <button
-              onClick={() => goShop("Dentalium Shells")}
-              className="hover:text-gold transition"
-            >
-              Dentalium
-            </button>
+            {[
+              {
+                label: "Home",
+                active: view === "home",
+                go: () => setView("home"),
+              },
+              {
+                label: "About Us",
+                active: view === "about",
+                go: () => setView("about"),
+              },
+              {
+                label: "Shop All",
+                active: view === "shop" && activeCat === "All",
+                go: () => goShop("All"),
+              },
+              {
+                label: "Dentalium",
+                active: view === "shop" && activeCat === "Dentalium Shells",
+                go: () => goShop("Dentalium Shells"),
+              },
+              {
+                label: "Contact Us",
+                active: view === "contact",
+                go: () => setView("contact"),
+              },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={item.go}
+                aria-current={item.active ? "page" : undefined}
+                className={`relative py-1 transition-colors ${
+                  item.active ? "text-deep" : "hover:text-gold"
+                }`}
+              >
+                {item.label}
 
-            <button
-              onClick={() => setView("contact")}
-              className="hover:text-gold transition"
-            >
-              Contact Us
-            </button>
+                <span
+                  className={`absolute left-0 right-0 -bottom-1 h-[2px] bg-gold transition-transform duration-300 origin-left ${
+                    item.active ? "scale-x-100" : "scale-x-0"
+                  }`}
+                />
+              </button>
+            ))}
+
             <button
               onClick={() => (window.location.href = "/admin-login")}
               className="hover:text-gold transition opacity-60"
@@ -354,7 +368,18 @@ const App = () => {
                     : goShop(x === "Shop All" ? "All" : x);
                   setMenuOpen(false);
                 }}
-                className="block w-full text-left py-1"
+                className={`block w-full text-left py-1 border-l-2 pl-3 transition-colors ${
+                  (x === "Home" && view === "home") ||
+                  (x === "Shop All" &&
+                    view === "shop" &&
+                    activeCat === "All") ||
+                  (x !== "Home" &&
+                    x !== "Shop All" &&
+                    view === "shop" &&
+                    activeCat === x)
+                    ? "border-gold text-deep"
+                    : "border-transparent text-deep/60"
+                }`}
               >
                 {x}
               </button>

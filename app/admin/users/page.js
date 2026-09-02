@@ -1,31 +1,21 @@
 // =====================================================================
 //  REPLACE:  app/admin/users/page.js
-//  Changes: session guard + adminFetch (contacts are now private)
 // =====================================================================
 
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { verifySession, adminFetch } from "@/lib/adminAuth";
+import AdminShell from "@/components/AdminShell";
+import { adminFetch } from "@/lib/adminAuth";
 
-export default function UserDetails() {
-  const router = useRouter();
-
+export default function MessagesPage() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [checking, setChecking] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    verifySession().then((ok) => {
-      if (!ok) {
-        router.replace("/admin-login");
-      } else {
-        setChecking(false);
-        fetchContacts();
-      }
-    });
-  }, [router]);
+    fetchContacts();
+  }, []);
 
   const fetchContacts = async () => {
     try {
@@ -33,77 +23,112 @@ export default function UserDetails() {
       const data = await response.json();
 
       setContacts(Array.isArray(data) ? data : []);
-      setLoading(false);
     } catch (error) {
       console.log(error);
+    } finally {
       setLoading(false);
     }
   };
 
-  if (checking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f8f5f0]">
-        <p className="text-[#0B2C4D]">Loading...</p>
-      </div>
-    );
-  }
+  const term = search.trim().toLowerCase();
+
+  const visible = term
+    ? contacts.filter((c) =>
+        [c.name, c.email, c.subject, c.message]
+          .join(" ")
+          .toLowerCase()
+          .includes(term),
+      )
+    : contacts;
+
+  const initials = (name) =>
+    (name || "?")
+      .split(" ")
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#f8f5f0] p-10">
-      <div className="flex justify-between items-center mb-10">
-        <h1 className="text-4xl font-serif text-[#0B2C4D]">User Details</h1>
+    <AdminShell
+      title="Messages"
+      subtitle="Enquiries sent through the contact form."
+      actions={
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search messages"
+          className="w-full sm:w-64 bg-white border border-[#ebdec8] px-4 py-2.5 text-[14px] text-[#0b2f49] outline-none focus:border-[#b88e4b] transition-colors"
+        />
+      }
+    >
+      {loading ? (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-32 bg-white/70 animate-pulse" />
+          ))}
+        </div>
+      ) : visible.length === 0 ? (
+        <div className="bg-white border border-[#ebdec8] px-8 py-20 text-center">
+          <p className="font-serif text-[22px] text-[#0b2f49]/40">
+            {contacts.length === 0 ? "No messages yet" : "Nothing matches that"}
+          </p>
 
-        <button
-          onClick={() => router.push("/admin")}
-          className="bg-[#0B2C4D] text-white px-5 py-2 rounded"
-        >
-          Back
-        </button>
-      </div>
+          <p className="mt-2 text-[14px] text-[#0b2f49]/40">
+            {contacts.length === 0
+              ? "Anything sent through the contact form lands here."
+              : "Try a different word."}
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-px bg-[#ebdec8] border border-[#ebdec8] md:grid-cols-2">
+          {visible.map((c) => (
+            <article key={c.id} className="bg-white p-7">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 shrink-0 bg-[#0b2f49] text-white flex items-center justify-center text-[13px]">
+                  {initials(c.name)}
+                </div>
 
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <table className="w-full border-collapse">
-          <thead className="bg-[#0B2C4D] text-white">
-            <tr>
-              <th className="p-4 text-left">ID</th>
-              <th className="p-4 text-left">Name</th>
-              <th className="p-4 text-left">Email</th>
-              <th className="p-4 text-left">Subject</th>
-              <th className="p-4 text-left">Message</th>
-            </tr>
-          </thead>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-medium text-[#0b2f49]">
+                    {c.name}
+                  </p>
 
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="5" className="p-10 text-center">
-                  Loading...
-                </td>
-              </tr>
-            ) : contacts.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="p-10 text-center">
-                  No contact submissions found
-                </td>
-              </tr>
-            ) : (
-              contacts.map((item) => (
-                <tr key={item.id} className="border-b hover:bg-gray-50">
-                  <td className="p-4">{item.id}</td>
+                  <a
+                    href={`mailto:${c.email}`}
+                    className="text-[13px] text-[#b88e4b] hover:underline break-all"
+                  >
+                    {c.email}
+                  </a>
+                </div>
 
-                  <td className="p-4 font-medium">{item.name}</td>
+                <time className="text-[12px] text-[#0b2f49]/35 shrink-0">
+                  {new Date(c.created_at).toLocaleDateString()}
+                </time>
+              </div>
 
-                  <td className="p-4">{item.email}</td>
+              {c.subject && (
+                <p className="mt-5 font-serif text-[19px] text-[#0b2f49] leading-snug">
+                  {c.subject}
+                </p>
+              )}
 
-                  <td className="p-4">{item.subject}</td>
+              <p className="mt-3 text-[15px] leading-relaxed text-[#0b2f49]/65 whitespace-pre-line">
+                {c.message}
+              </p>
 
-                  <td className="p-4 max-w-md break-words">{item.message}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+              <a
+                href={`mailto:${c.email}?subject=${encodeURIComponent(
+                  "Re: " + (c.subject || "Your enquiry"),
+                )}`}
+                className="inline-block mt-6 border-b border-[#b88e4b] pb-0.5 text-[14px] text-[#0b2f49] hover:text-[#b88e4b] transition-colors"
+              >
+                Reply
+              </a>
+            </article>
+          ))}
+        </div>
+      )}
+    </AdminShell>
   );
 }
