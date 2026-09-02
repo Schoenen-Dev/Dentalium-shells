@@ -1,9 +1,7 @@
 // =====================================================================
-//  REPLACE:  app/api/cart/route.js
+//  NEW FILE:  app/api/cart/[sessionId]/route.js
 //
-//  Was going through app/api/[[...path]]/route.js, which talks to
-//  MongoDB on localhost - dead on Vercel. Now proxies to the PHP
-//  backend so Add to Cart actually works.
+//  Loads the visitor's cart from the PHP backend.
 // =====================================================================
 
 import { NextResponse } from "next/server";
@@ -13,16 +11,14 @@ export const revalidate = 0;
 
 const BACKEND = "https://backend.dentaliumshells.com";
 
-export async function POST(request) {
+export async function GET(request, { params }) {
   try {
-    const body = await request.json();
+    const sessionId = params.sessionId;
 
-    const response = await fetch(`${BACKEND}/api/cart`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      cache: "no-store",
-    });
+    const response = await fetch(
+      `${BACKEND}/api/cart/${encodeURIComponent(sessionId)}`,
+      { cache: "no-store" },
+    );
 
     const data = await response.json();
 

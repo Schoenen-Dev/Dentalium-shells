@@ -1,13 +1,8 @@
 // =====================================================================
 //  REPLACE:  app/api/products/route.js
 //
-//  THE BUG: in Next.js 14, a GET route handler with no dynamic input is
-//  run ONCE at build time and the result is frozen into the deployment.
-//  Your backend had no products when Vercel last built, so this route
-//  has been serving an empty list ever since — no matter what you add
-//  in the admin panel.
-//
-//  The two lines below force it to fetch fresh on every request.
+//  force-dynamic stops Next.js freezing this at build time.
+//  Also passes through the new "collection" field.
 // =====================================================================
 
 import { NextResponse } from "next/server";
@@ -29,7 +24,6 @@ export async function GET() {
       return NextResponse.json({ products: [] });
     }
 
-    // FORMAT PRODUCTS
     const formattedProducts = rows.map((product) => {
       const actualPrice = Number(product.actual_price || 0);
       const sellingPrice = Number(product.selling_price || 0);
@@ -45,9 +39,13 @@ export async function GET() {
       return {
         id: product.id,
 
-        category: product.category,
+        // the collection the product belongs to - used by the filter buttons
+        collection: product.collection || "Dentalium Shells",
 
+        // product name (stored in the "category" column)
         name: product.category,
+
+        category: product.category,
 
         price: sellingPrice,
 
@@ -55,7 +53,6 @@ export async function GET() {
 
         images: [product.image],
 
-        // no badge when there is no real discount
         badge: discount > 0 ? `-${discount}%` : null,
 
         description: product.category,

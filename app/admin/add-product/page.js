@@ -10,10 +10,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { verifySession, adminFetch } from "@/lib/adminAuth";
 
+const COLLECTIONS = ["Dentalium Shells", "Seashell Jewelry", "Coastal Decor"];
+
 export default function AddProduct() {
   const router = useRouter();
 
   const [category, setCategory] = useState("");
+  const [collection, setCollection] = useState(COLLECTIONS[0]);
   const [actualPrice, setActualPrice] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [image, setImage] = useState(null);
@@ -40,6 +43,7 @@ export default function AddProduct() {
       const formData = new FormData();
 
       formData.append("category", category);
+      formData.append("collection", collection);
       formData.append("actual_price", actualPrice);
       formData.append("selling_price", sellingPrice);
       formData.append("image", image);
@@ -56,6 +60,7 @@ export default function AddProduct() {
         alert("Product added successfully");
 
         setCategory("");
+        setCollection(COLLECTIONS[0]);
         setActualPrice("");
         setSellingPrice("");
         setImage(null);
@@ -105,6 +110,19 @@ export default function AddProduct() {
           className="w-full border p-3 rounded"
           required
         />
+
+        <select
+          value={collection}
+          onChange={(e) => setCollection(e.target.value)}
+          className="w-full border p-3 rounded bg-white"
+          required
+        >
+          {COLLECTIONS.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
 
         <input
           type="number"

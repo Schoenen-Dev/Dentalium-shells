@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { verifySession, adminFetch, BACKEND } from "@/lib/adminAuth";
 
+const COLLECTIONS = ["Dentalium Shells", "Seashell Jewelry", "Coastal Decor"];
+
 export default function ProductsPage() {
   const router = useRouter();
 
@@ -19,6 +21,7 @@ export default function ProductsPage() {
 
   const [editData, setEditData] = useState(null);
   const [editCategory, setEditCategory] = useState("");
+  const [editCollection, setEditCollection] = useState(COLLECTIONS[0]);
   const [editActualPrice, setEditActualPrice] = useState("");
   const [editSellingPrice, setEditSellingPrice] = useState("");
 
@@ -54,7 +57,7 @@ export default function ProductsPage() {
       .includes(search.toLowerCase());
 
     const matchesCategory =
-      categoryFilter === "" || item.category === categoryFilter;
+      categoryFilter === "" || item.collection === categoryFilter;
 
     const matchesPrice =
       priceFilter === "" || Number(item.selling_price) <= Number(priceFilter);
@@ -87,6 +90,7 @@ export default function ProductsPage() {
   const handleEdit = (item) => {
     setEditData(item);
     setEditCategory(item.category);
+    setEditCollection(item.collection || COLLECTIONS[0]);
     setEditActualPrice(item.actual_price);
     setEditSellingPrice(item.selling_price);
   };
@@ -101,6 +105,7 @@ export default function ProductsPage() {
           body: JSON.stringify({
             id: editData.id,
             category: editCategory,
+            collection: editCollection,
             actual_price: editActualPrice,
             selling_price: editSellingPrice,
           }),
@@ -149,7 +154,7 @@ export default function ProductsPage() {
       <div className="flex gap-4 mb-6">
         <input
           type="text"
-          placeholder="Search Category"
+          placeholder="Search product name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="border p-2 rounded w-full"
@@ -160,9 +165,9 @@ export default function ProductsPage() {
           onChange={(e) => setCategoryFilter(e.target.value)}
           className="border p-2 rounded"
         >
-          <option value="">All Categories</option>
+          <option value="">All Collections</option>
 
-          {[...new Set(products.map((p) => p.category))].map((cat) => (
+          {COLLECTIONS.map((cat) => (
             <option key={cat} value={cat}>
               {cat}
             </option>
@@ -186,7 +191,8 @@ export default function ProductsPage() {
             <tr>
               <th className="p-3 text-sm font-medium">ID</th>
               <th className="p-3 text-sm font-medium">Image</th>
-              <th className="p-3 text-sm font-medium">Category</th>
+              <th className="p-3 text-sm font-medium">Name</th>
+              <th className="p-3 text-sm font-medium">Collection</th>
               <th className="p-3 text-sm font-medium">Actual Price</th>
               <th className="p-3 text-sm font-medium">Selling Price</th>
               <th className="p-3 text-sm font-medium">Actions</th>
@@ -207,6 +213,8 @@ export default function ProductsPage() {
                 </td>
 
                 <td className="p-3 text-sm">{item.category}</td>
+
+                <td className="p-3 text-sm">{item.collection}</td>
 
                 <td className="p-3 text-sm">${item.actual_price}</td>
 
@@ -248,8 +256,20 @@ export default function ProductsPage() {
                 value={editCategory}
                 onChange={(e) => setEditCategory(e.target.value)}
                 className="w-full border p-3 rounded"
-                placeholder="Category"
+                placeholder="Product Name"
               />
+
+              <select
+                value={editCollection}
+                onChange={(e) => setEditCollection(e.target.value)}
+                className="w-full border p-3 rounded bg-white"
+              >
+                {COLLECTIONS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
 
               <input
                 type="number"
