@@ -67,6 +67,10 @@ function getSession() {
 
 const CART_KEY = "ds_cart";
 
+/* The API returns ids as strings ("9") while some code passes numbers,
+   so compare them loosely rather than with ===. */
+const sameId = (a, b) => String(a) === String(b);
+
 const readCart = () => {
   if (typeof window === "undefined") return { items: [] };
 
@@ -134,7 +138,7 @@ const App = () => {
   const addToCart = (product, qty = 1) => {
     const cart = readCart();
 
-    const index = cart.items.findIndex((i) => i.productId === product.id);
+    const index = cart.items.findIndex((i) => sameId(i.productId, product.id));
 
     if (index >= 0) {
       cart.items[index].qty += qty;
@@ -157,7 +161,7 @@ const App = () => {
 
     const cart = readCart();
 
-    const index = cart.items.findIndex((i) => i.productId === productId);
+    const index = cart.items.findIndex((i) => sameId(i.productId, productId));
 
     if (index >= 0) {
       cart.items[index].qty = qty;
@@ -169,7 +173,7 @@ const App = () => {
   const removeItem = (productId) => {
     const cart = readCart();
 
-    cart.items = cart.items.filter((i) => i.productId !== productId);
+    cart.items = cart.items.filter((i) => !sameId(i.productId, productId));
 
     setCart(writeCart(cart));
   };
@@ -490,7 +494,7 @@ const App = () => {
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() =>
-                        updateQty(item.id, Math.max(1, item.qty - 1))
+                        updateQty(item.productId, Math.max(1, item.qty - 1))
                       }
                       className="w-7 h-7 border border-sand rounded flex items-center justify-center hover:bg-sand"
                     >
@@ -498,13 +502,13 @@ const App = () => {
                     </button>
                     <span className="text-sm w-6 text-center">{item.qty}</span>
                     <button
-                      onClick={() => updateQty(item.id, item.qty + 1)}
+                      onClick={() => updateQty(item.productId, item.qty + 1)}
                       className="w-7 h-7 border border-sand rounded flex items-center justify-center hover:bg-sand"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.productId)}
                       className="ml-auto text-muted-foreground hover:text-red-500"
                     >
                       <Trash2 className="w-4 h-4" />
